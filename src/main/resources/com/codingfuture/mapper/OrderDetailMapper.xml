@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.codingfuture.mapper.OrderDetailMapper">
+
+    <insert id="insertDetail" parameterType="com.codingfuture.dto.OrderDetailDTO">
+        insert into orderdetail (goodsuuid, goodsname, price, num, money, state, ordersuuid)
+        values (#{orderDetail.goodsuuid}, #{orderDetail.goodsname}, #{orderDetail.price},
+                #{orderDetail.num}, #{orderDetail.money}, '0', #{ordersuuid})
+    </insert>
+
+    <update id="updateStoreUuid">
+        update orderdetail
+        set endtime=now(),
+            storeuuid=#{storeUuid},
+            state='1',
+            ender=#{operator}
+        where uuid = #{orderDetailUuid}
+    </update>
+
+    <select id="selectByUuid" resultType="com.codingfuture.entity.OrderDetail">
+        select *
+        from orderdetail
+        where uuid = #{orderDetailUuid}
+    </select>
+
+    <select id="selectByOrdersIdWithState" resultType="string">
+        select count(*) count
+        from orderdetail
+        where ordersuuid = #{ordersUuid}
+          and state = '0'
+    </select>
+
+    <select id="selectSumMoneyByMonth" resultType="com.codingfuture.dto.MonthSalesDTO">
+        --         SELECT
+--             MONTH (o.endtime) `month`,
+--             SUM ( od.num * g.outprice ) money
+--         FROM
+--             orderdetail od
+--             JOIN orders o
+--             JOIN goods g
+--         ON o.uuid = od.ordersuuid
+--             AND od.goodsuuid = g.uuid
+--         WHERE
+--             o.type = '2'
+--           AND o.state = '1'
+--         GROUP BY MONTH (o.endtime)
+--         ORDER BY MONTH (o.endtime)
+
+        SELECT MONTH
+            ( endtime ) `month`,
+            SUM( totalmoney ) money
+        FROM
+            orders
+        WHERE
+            type = '2'
+          AND state = '1'
+        GROUP BY
+            MONTH ( endtime )
+        ORDER BY
+            MONTH ( endtime )
+    </select>
+
+
+</mapper>

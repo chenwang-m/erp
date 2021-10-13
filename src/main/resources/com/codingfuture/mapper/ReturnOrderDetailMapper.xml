@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.codingfuture.mapper.ReturnOrderDetailMapper">
+
+    <insert id="insert">
+        insert into returnorderdetail (goodsuuid, goodsname, price, num, money, state, returnordersuuid)
+        values (#{returnOrderDetail.goodsuuid}, #{returnOrderDetail.goodsname}, #{returnOrderDetail.price},
+                #{returnOrderDetail.num}, #{returnOrderDetail.money}, '0', #{returnOrdersUuid})
+    </insert>
+
+    <update id="updateById">
+        update returnorderdetail
+        set state='1',
+            endtime=now(),
+            ender=#{operator},
+            storeuuid=#{storeuuid}
+        where uuid = #{returnOrderDetailUuid}
+    </update>
+
+    <select id="selectById" resultType="com.codingfuture.entity.ReturnOrderDetail">
+        select *
+        from returnorderdetail
+        where uuid = #{returnOrdersUuid}
+    </select>
+    <select id="countState0" resultType="java.lang.Integer">
+        select count(*)
+        from returnorderdetail
+        where returnordersuuid = #{returnOrderUuid}
+          and state = 0;
+    </select>
+
+</mapper>

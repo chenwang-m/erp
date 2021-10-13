@@ -1,0 +1,508 @@
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>库存管理</cite></a>
+        <a><cite>盘盈盘亏管理</cite></a>
+    </div>
+</div>
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-header">盘盈盘亏管理</div>
+        <div class="layui-card-body">
+            <!-- 查询 -->
+            <div class="layui-row" style="margin-bottom:10px">
+                <div class="layui-col-md3">
+                    <button type="button" class="layui-btn" id="add-btn">新增</button>
+                </div>
+            </div>
+            <div class="layui-row" style="margin-bottom: 10px;">
+                <form class="layui-form" lay-filter="formSearch">
+                    <div class="layui-col-md3">
+                        <div class="layui-inline">
+                            <label class="layui-form-label"
+                                   style="width: 75px; text-align: left; padding-left: 0;">商品名称:</label>
+                            <div class="layui-input-inline" style="width: 200px; ">
+                                <input type="text" name="goodsName" placeholder="商品名称" autocomplete="off"
+                                       class="layui-input">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-col-md3">
+                        <div class="layui-inline">
+                            <label class="layui-form-label"
+                                   style="width: 75px; text-align: left; padding-left: 0;">仓库:</label>
+                            <div class="layui-input-inline" style="width: 200px; ">
+                                <input type="text" name="storeName" placeholder="仓库名称" autocomplete="off"
+                                       class="layui-input">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-col-md3">
+                        <div class="layui-inline">
+                            <label class="layui-form-label"
+                                   style="width: 75px; text-align: left; padding-left: 0;">数量:</label>
+                            <div class="layui-input-inline" style="width: 200px; ">
+                                <input type="text" name="num" placeholder="数量" autocomplete="off" class="layui-input">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-col-md3">
+                        <div class="layui-inline">
+                            <label class="layui-form-label"
+                                   style="width: 75px; text-align: left; padding-left: 0;">类型:</label>
+                            <div class="layui-input-inline" style="width: 200px; ">
+                                <input type="text" name="type" placeholder="类型" autocomplete="off" class="layui-input">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-col-md3">
+                        <div class="layui-inline">
+                            <label class="layui-form-label"
+                                   style="width: 75px; text-align: left; padding-left: 0;">登记日期:</label>
+                            <div class="layui-input-inline" style="width: 200px; ">
+                                <input type="text" name="createtime" placeholder="登记日期" autocomplete="off"
+                                       class="layui-input">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-col-md3">
+                        <div class="layui-inline">
+                            <label class="layui-form-label"
+                                   style="width: 75px; text-align: left; padding-left: 0;">审核日期:</label>
+                            <div class="layui-input-inline" style="width: 200px; ">
+                                <input type="text" name="checktime" placeholder="审核日期" autocomplete="off"
+                                       class="layui-input">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-col-md3">
+                        <div class="layui-inline">
+                            <label class="layui-form-label"
+                                   style="width: 75px; text-align: left; padding-left: 0;">登记人:</label>
+                            <div class="layui-input-inline" style="width: 200px; ">
+                                <input type="text" name="creater" placeholder="登记人" autocomplete="off"
+                                       class="layui-input">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-col-md3">
+                        <div class="layui-inline">
+                            <label class="layui-form-label"
+                                   style="width: 75px; text-align: left; padding-left: 0;">审核人:</label>
+                            <div class="layui-input-inline" style="width: 200px; ">
+                                <input type="text" name="checker" placeholder="审核人" autocomplete="off"
+                                       class="layui-input">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-col-md3">
+                        <div class="layui-inline">
+                            <label class="layui-form-label"
+                                   style="width: 75px; text-align: left; padding-left: 0;">状态:</label>
+                            <div class="layui-input-inline" style="width: 200px; ">
+                                <input type="text" name="state" placeholder="状态" autocomplete="off" class="layui-input">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-col-md3">
+                        <div class="layui-inline">
+                            <label class="layui-form-label"
+                                   style="width: 75px; text-align: left; padding-left: 0;">备注:</label>
+                            <div class="layui-input-inline" style="width: 200px; ">
+                                <input type="text" name="remark" placeholder="备注" autocomplete="off"
+                                       class="layui-input">
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="layui-btn" id="search-btn">搜索</button>
+                    <button type="reset" class="layui-btn" id="reset-btn">重置</button>
+                </form>
+            </div>
+            <!-- 表格 -->
+            <table id="inventory-table-parseData" lay-filter="inventory-table-parseData"></table>
+
+            <!-- 右侧按钮 -->
+            <script type="text/html" id="test-table-operate-barDemo">
+                <a class="layui-btn layui-btn-xs" lay-event="edit">审核/编辑</a>
+                <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+            </script>
+        </div>
+    </div>
+</div>
+
+
+<!-- 编辑按钮弹出框 -->
+<script type="text/html" id="edit">
+    <form class="layui-form" lay-filter="formEdit">
+        <div class="layui-row">
+            <div class="layui-col-md8 layui-col-md-offset1">
+                <div class="layui-form-item" style="margin-top: 10px;">
+                    <label class="layui-form-label">商品:</label>
+                    <div class="layui-input-block">
+                        <select name="goodsuuid" id="goodsEdit" lay-verify="">
+                            <option value="">---请选择商品---</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-md8 layui-col-md-offset1">
+                <div class="layui-form-item" style="margin-top: 10px;">
+                    <label class="layui-form-label">仓库:</label>
+                    <div class="layui-input-block">
+                        <select name="storeuuid" id="storeEdit" lay-verify="">
+                            <option value="">---请选择仓库---</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-md8 layui-col-md-offset1">
+                <div class="layui-form-item" style="margin-top: 10px;">
+                    <label class="layui-form-label">数量:</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="num" required lay-verify="required" placeholder="数量" autocomplete="off"
+                               class="layui-input">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-md8 layui-col-md-offset1">
+                <div class="layui-form-item" style="margin-top: 10px;">
+                    <label class="layui-form-label">类型:</label>
+                    <div class="layui-input-block">
+                        <select name="type" id="type" lay-verify="">
+                            <option value="">---请选择类型---</option>
+                            <option value="盘盈">盘盈</option>
+                            <option value="盘亏">盘亏</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-md8 layui-col-md-offset1">
+                <div class="layui-form-item" style="margin-top: 10px;">
+                    <label class="layui-form-label">备注:</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="remark" required lay-verify="required" placeholder="备注"
+                               autocomplete="off"
+                               class="layui-input">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layui-row" style="display: none;">
+            <div class="layui-col-md8 layui-col-md-offset1">
+                <div class="layui-form-item" style="margin-top: 10px;">
+                    <label class="layui-form-label">id:</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="uuid" autocomplete="off"
+                               class="layui-input">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layui-row">
+            <div class="layui-form-item">
+                <div class="layui-col-md8 layui-col-md-offset4">
+                    <div class="layui-form-item">
+                        <button type="button" class="layui-btn" onclick="editShop()">确认</button>
+                        <button type="button" class="layui-btn layui-btn-primary" onclick="closeLayer()">取消</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</script>
+<!-- 新增按钮弹出框 -->
+<script type="text/html" id="add">
+    <form class="layui-form" lay-filter="formAdd">
+        <div class="layui-row">
+            <div class="layui-col-md8 layui-col-md-offset1">
+                <div class="layui-form-item" style="margin-top: 10px;">
+                    <label class="layui-form-label">商品:</label>
+                    <div class="layui-input-block">
+                        <select name="goodsuuid" id="goods" lay-verify="">
+                            <option value="">---请选择商品---</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-md8 layui-col-md-offset1">
+                <div class="layui-form-item" style="margin-top: 10px;">
+                    <label class="layui-form-label">仓库:</label>
+                    <div class="layui-input-block">
+                        <select name="storeuuid" id="store" lay-verify="">
+                            <option value="">---请选择仓库---</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-md8 layui-col-md-offset1">
+                <div class="layui-form-item" style="margin-top: 10px;">
+                    <label class="layui-form-label">数量:</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="num" required lay-verify="required" placeholder="数量" autocomplete="off"
+                               class="layui-input">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-md8 layui-col-md-offset1">
+                <div class="layui-form-item" style="margin-top: 10px;">
+                    <label class="layui-form-label">类型:</label>
+                    <div class="layui-input-block">
+                        <select name="type" id="type" lay-verify="">
+                            <option value="">---请选择类型---</option>
+                            <option value="盘盈">盘盈</option>
+                            <option value="盘亏">盘亏</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-md8 layui-col-md-offset1">
+                <div class="layui-form-item" style="margin-top: 10px;">
+                    <label class="layui-form-label">备注:</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="remark" required lay-verify="required" placeholder="备注"
+                               autocomplete="off"
+                               class="layui-input">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layui-row">
+            <div class="layui-form-item">
+                <div class="layui-col-md8 layui-col-md-offset4">
+                    <div class="layui-form-item">
+                        <button type="button" class="layui-btn" onclick="addShop()">新增</button>
+                        <button type="button" class="layui-btn layui-btn-primary closeLayer" onclick="closeLayer()">取消
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</script>
+
+<script>
+    layui.use(['admin', 'table', 'form'], function () {
+        var admin = layui.admin
+            , table = layui.table
+            , form = layui.form
+            , baseUrl = layui.setter.baseUrl
+            , $ = layui.$;
+
+        // 表格渲染
+        var tableIns = table.render({
+            elem: '#inventory-table-parseData'
+            // 请求地址
+            , url: baseUrl + 'inventory/listByPage'
+            , toolbar: true
+            , title: '商品表'
+            , cellMinWidth: 120
+            // 是否开启加载loding
+            , loading: true
+            // 数据渲染规定
+            , cols: [[
+                {field: 'uuid', title: '编号', width: 110,}
+                , {field: 'goodsName', title: '商品'}
+                , {field: 'storeName', title: '仓库'}
+                , {field: 'num', title: '数量'}
+                , {field: 'type', title: '类型'}
+                , {field: 'createtime', title: '登记日期'}
+                , {field: 'creater', title: '登记人'}
+                , {field: 'checktime', title: '审核日期'}
+                , {field: 'checker', title: '审核人'}
+                , {field: 'state', title: '状态'}
+                , {field: 'remark', title: '备注'}
+                , {title: '操作', toolbar: '#test-table-operate-barDemo', width: 150, fixed: 'right'}
+            ]]
+            // 开启分页
+            , page: true
+            , request: {
+                pageName: 'page',
+                limitName: 'rows'
+            }
+            , response: {
+                // statusName: 'code',
+                statusCode: 200 //重新规定成功的状态码为 200，table 组件默认为 0
+            }
+            , parseData: function (res) { //将原始数据解析成 table 组件所规定的数据
+                return {
+                    "code": res.code, //解析接口状态
+                    "msg": res.message, //解析提示文本
+                    "count": res.data.total, //解析数据长度
+                    "data": res.data.rows //解析数据列表
+                };
+            }
+        });
+
+        // 表格按钮功能设置
+        table.on('tool(inventory-table-parseData)', function (obj) {
+            var data = obj.data;
+            // 删除按钮弹窗
+            if (obj.event === 'del') {
+                layer.confirm('是否删除该数据,删除后不可恢复!', {title: '删除'}, function (index) {
+                    // 获取该数据id
+                    // 发送登录请求
+                    admin.req({
+                        url: baseUrl + 'inventory?id=' + data.uuid,
+                        type: 'delete',
+                        // data: {
+                        //     id: data.uuid
+                        // },
+                        done: function (res) {
+                            layer.open({
+                                title: '删除'
+                                , content: res.msg
+                            });
+                            table.reload('inventory-table-parseData');
+                        }
+                    })
+                });
+            }
+            // 编辑按钮弹窗
+            if (obj.event === 'edit') {
+                var goodsList = admin.req({
+                    url: baseUrl + 'inventory/goodsList',
+                })
+                var storeList = admin.req({
+                    url: baseUrl + 'inventory/storeList',
+                })
+                Promise.all([goodsList, storeList]).then(res => {
+                    var goods = res[0].data.rows;
+                    var store = res[1].data.rows;
+                    $.each(goods, function (i, item) {
+                        //$('#goodsEdit').append(`<option value="${item.goodsuuid}">${item.goodsname}</option>`)
+                        $('#goodsEdit').append(`<option value="${item.uuid}">${item.goodsName}</option>`)
+                    })
+                    $.each(store, function (i, item) {
+                        //$('#storeEdit').append(`<option value="${item.storeuuid}">${item.storename}</option>`)
+                        $('#storeEdit').append(`<option value="${item.uuid}">${item.storeName}</option>`)
+                    })
+                    admin.req({
+                        url: baseUrl + 'inventory/selectone',
+                        data: {
+                            id: data.uuid
+                        },
+                        success: function (res) {
+                            res = res.data.rows[0];
+                            form.val("formEdit", res);
+                        }
+                    })
+                    form.render(null, 'formEdit');
+                })
+
+                layer.open({
+                    title: "审核",
+                    type: 1,
+                    move: false,
+                    area: '500px',
+                    content: $('#edit').html()
+                });
+
+            }
+        });
+        // 新增按钮弹出框
+        $('#add-btn').click(function () {
+            console.log(1);
+            layer.closeAll();
+            layer.open({
+                title: "新增",
+                type: 1,
+                move: false,
+                area: ['500px', '485px'],
+                content: $('#add').html()
+            });
+
+            admin.req({
+                url: baseUrl + 'inventory/goodsList',
+                success: function (res) {
+                    $.each(res.data.rows, function (i, item) {
+                        //$('#goods').append(`<option value="${item.goodsuuid}">${item.goodsname}</option>`)
+                        $('#goods').append(`<option value="${item.uuid}">${item.goodsName}</option>`)
+                    })
+                    form.render(null, 'formAdd');
+                }
+            })
+
+            admin.req({
+                url: baseUrl + 'inventory/storeList',
+                success: function (res) {
+                    $.each(res.data.rows, function (i, item) {
+                        //$('#store').append(`<option value="${item.storeuuid}">${item.storename}</option>`)
+                        $('#store').append(`<option value="${item.uuid}">${item.storeName}</option>`)
+                    })
+                    form.render(null, 'formAdd');
+                }
+            })
+        })
+        // 搜索功能
+        $('#search-btn').click(function () {
+            var data = form.val('formSearch');
+            tableIns.reload({
+                where: data
+            })
+        })
+    });
+
+    // 关闭弹框
+    function closeLayer() {
+        layer.closeAll();
+    }
+
+    // 新增功能提交
+    function addShop() {
+
+        var i = layer.confirm('是否提交？', {
+            btn: ['确认', '取消'] //可以无限个按钮
+        }, function (index, layero) {
+            var data = layui.form.val("formAdd");
+            layui.admin.req({
+                url: layui.setter.baseUrl + 'inventory/add',
+                type: 'post',
+                data: data,
+                done: function (res) {
+                    layer.closeAll();
+                    layer.open({
+                        title: '新增'
+                        , content: res.msg
+                    });
+                    layui.table.reload('inventory-table-parseData');
+                }
+            })
+        }, function (index) {
+            layer.close(i);
+        });
+
+    }
+
+    // 编辑功能提交
+    function editShop() {
+        var i = layer.confirm('是否审核/编辑？', {
+            btn: ['确认', '取消'] //可以无限个按钮
+        }, function (index, layero) {
+            var data = layui.form.val("formEdit");
+            layui.admin.req({
+                url: layui.setter.baseUrl + 'inventory/update',
+                type: 'post',
+                data: data,
+                done: function (res) {
+                    layer.closeAll();
+                    layer.open({
+                        title: '审核'
+                        , content: res.msg
+                    });
+                    layui.table.reload('inventory-table-parseData');
+                }
+            })
+        }, function (index) {
+            layer.close(i);
+        });
+
+    }
+</script>
+
+<style>
+    .layui-col-md3,
+    #reset-btn,
+    #search-btn {
+        margin-top: 10px;
+    }
+</style>

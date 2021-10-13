@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.codingfuture.mapper.StoreOperationMapper">
+    <resultMap id="getFindAllStoreOperation" type="com.codingfuture.dto.StoreOperationDTO" autoMapping="true">
+        <id property="uuid" column="storeoperuuid"/>
+        <result property="opertime" column="opertime"/>
+        <result property="storeName" column="storeName"/>
+        <result property="empName" column="empName"/>
+        <result property="goodsName" column="goodsName"/>
+    </resultMap>
+    <select id="findAllStoreOperation" resultMap="getFindAllStoreOperation">
+        SELECT
+        so.uuid storeoperuuid,
+        so.empuuid,
+        so.opertime,
+        so.storeuuid,
+        so.goodsuuid,
+        so.num,
+        so.type,
+        e.`name` empName,
+        st.`name` storeName,
+        gs.`name` goodsName
+        FROM
+        storeoper so
+        LEFT JOIN emp e ON so.empuuid = e.uuid
+        LEFT JOIN store st ON so.storeuuid = st.uuid
+        LEFT JOIN goods gs ON so.goodsuuid = gs.uuid
+        <where>
+            <if test="empuuid != null">
+                and so.empuuid = #{empuuid}
+            </if>
+            <if test="fopertime != null">
+                <![CDATA[and so.opertime>=#{fopertime}]]>
+            </if>
+            <if test="topertime != null">
+                <![CDATA[ and so.opertime <= #{topertime}]]>
+            </if>
+            <if test="storeuuid != null">
+                and so.storeuuid = #{storeuuid}
+            </if>
+            <if test="goodsuuid != null">
+                and so.goodsuuid = #{goodsuuid}
+            </if>
+            <if test="type != null and type !=''">
+                and so.type = #{type}
+            </if>
+        </where>
+        ORDER BY
+        so.uuid
+    </select>
+</mapper>

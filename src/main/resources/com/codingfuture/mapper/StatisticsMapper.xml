@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.codingfuture.mapper.StatisticsMapper">
+    <select id="findStatisticsGoodsType" resultType="com.codingfuture.dto.StatisticsDTO">
+        SELECT
+            gt.`name` name,
+            SUM( od.num * goods.outprice ) value
+        FROM
+            orderdetail od,
+            orders os,
+            goodstype gt,
+            goods
+        WHERE
+            os.uuid = od.ordersuuid
+          AND goods.uuid = od.goodsuuid
+          AND gt.uuid = goods.goodstypeuuid
+          AND os.type = 2
+          AND os.state = 1
+        GROUP BY
+            gt.`name`,
+            gt.uuid
+    </select>
+</mapper>

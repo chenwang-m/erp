@@ -1,0 +1,561 @@
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>采购管理</cite></a>
+        <a><cite>采购退货登记</cite></a>
+    </div>
+</div>
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-header">采购退货登记</div>
+        <div class="layui-card-body">
+            <!-- 查询 -->
+            <div class="layui-row" style="margin-bottom:10px">
+                <div class="layui-col-md3">
+                    <button type="button" class="layui-btn" id="add-btn">新增退货登记</button>
+                </div>
+            </div>
+
+            <!-- 表格 -->
+            <table id="orders-return-add-table-parseData" lay-filter="orders-return-add-table-parseData"></table>
+
+            <!-- 右侧按钮 -->
+            <script type="text/html" id="test-table-operate-barDemo">
+                <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+                <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+            </script>
+
+
+        </div>
+    </div>
+</div>
+<!-- 新增按钮弹出框 -->
+<script type="text/html" id="add">
+    <section class="layui-col-md11" style="margin: 0 auto; float: none;">
+        <div class="layui-card">
+            <div class="layui-card-header">
+                <span>退货申请</span>
+            </div>
+            <div class="layui-card-body layui-text card-add">
+                <div id="toolbar">
+                    <button type="button" class="layui-btn " data-type="addRow" title="添加一行">
+                        <i class="layui-icon layui-icon-add-1"></i> 添加
+                    </button>
+                        <div class="layui-inline">
+                            <div class="layui-form" lay-filter="supplier">
+                            <label class="layui-form-label">供应商</label>
+                            <div class="layui-input-inline" style="width: 180px;">
+                              <select name="supplier" id="supplier" >
+                                  <option value="">---请选择供应商---</option>
+                              </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="tableRes" class="table-overlay">
+                    <table id="dataTable" lay-filter="dataTable" class="layui-hide"></table>
+                </div>
+                <div id="action" class="text-center">
+                    <button type="button" name="btnSave" class="layui-btn" data-type="save"><i
+                            class="layui-icon layui-icon-ok-circle"></i>保存</button>
+                </div>
+            </div>
+        </div>
+    
+        
+    </section>
+</script>
+<!-- 双击表格行弹出框 -->
+<script type="text/html" id="search">
+    <div style="padding: 15px 30px;">
+        <table class="layui-table">
+            <tbody id="searchBody">
+                
+            </tbody>
+        </table>
+        <table class="layui-table" style="margin-top: 30px;" lay-filter="demo-add">
+            <thead>
+                <tr style="background-color: #f8f8f8;">
+                    <th lay-data="{field:'goodsuuid'}">商品编号</th>
+                    <th lay-data="{field:'goodsname'}">商品名称</th>
+                    <th lay-data="{field:'price'}">价格</th>
+                    <th lay-data="{field:'num'}">数量</th>
+                    <th lay-data="{field:'money'}">金额</th>
+                    <th lay-data="{field:'state'}">状态</th>
+                </tr>
+            </thead>
+            <tbody id="titleBody">
+    
+            </tbody>
+        </table>
+    </div>
+</script>
+
+<script>
+    layui.use(['admin', 'table', 'form'], function () {
+        var admin = layui.admin
+            , table = layui.table
+            , form = layui.form
+            , baseUrl = layui.setter.baseUrl
+            , $ = layui.$;
+
+        // 表格渲染
+        var tableIns = table.render({
+            elem: '#orders-return-add-table-parseData'
+            // 请求地址
+            , url: baseUrl + 'returnorders/listByPage?state=0'
+            , toolbar: true
+            , title: '采购申请表'
+            , cellMinWidth: 120
+            // 是否开启加载loding
+            , loading: true
+            // 数据渲染规定
+            , cols: [[
+                { field: 'uuid', title: '编号', width: 110 }
+                , { field: 'createtime', title: '登记日期', templet: '<div>{{d.createtime ? d.createtime.substring(0,10) : ""}}</div>' }
+                , { field: 'creatername', title: '登记员' }
+                , { field: 'suppliername', title: '供应商' }
+                , { field: 'totalmoney', title: '合计金额' }
+                , { field: 'state', title: '状态', templet: '<div>{{d.state == 0 ? "未审核" : d.state == 1 ? "已审核" : d.state == 2 ? "已确认" : d.state == 3 ? "已入库" : ""}}</div>' }
+            ]]
+            // 开启分页
+            , page: true
+            , request: {
+                pageName: 'page',
+                limitName: 'rows'
+            }
+            , response: {
+                // statusName: 'code',
+                statusCode: 200 //重新规定成功的状态码为 200，table 组件默认为 0
+            }
+            , parseData: function (res) { //将原始数据解析成 table 组件所规定的数据
+                return {
+                    "code": res.code, //解析接口状态
+                    "msg": res.message, //解析提示文本
+                    "count": res.data.total, //解析数据长度
+                    "data": res.data.rows //解析数据列表
+                };
+            }
+        });
+        // 双击表格弹窗
+        table.on('rowDouble(orders-return-add-table-parseData)', function (obj) {
+            var data = obj.data;
+            var tableTr = `
+            <tr>
+                <td class="bgc-ebf2ff">流水号</td>
+                <td>${data.uuid ? data.uuid : ''}</td>
+                <td class="bgc-ebf2ff">供应商</td>
+                <td colspan="3">${data.suppliername ? data.suppliername : ''}</td>
+                <td class="bgc-ebf2ff">状态</td>
+                <td>${data.state == 0 ? '未审核' : data.state == 1 ? '已审核' : data.state == 2 ? '已确认' : data.state == 3 ? '已入库' : ''}</td>
+            </tr>
+            <tr>
+                <td class="bgc-ebf2ff">登记员</td>
+                <td>${data.creatername ? data.creatername : ''}</td>
+                <td class="bgc-ebf2ff ">审核员</td>
+                <td  width="100px">${data.checkername ? data.checkername : ''}</td>
+                <td class="bgc-ebf2ff">采购员</td>
+                <td width="100px">${data.startername ? data.startername : ''}</td>
+                <td class="bgc-ebf2ff">库管员</td>
+                <td width="100px">${data.endername ? data.endername : ''}</td>
+            </tr>
+            <tr>
+                <td class="bgc-ebf2ff">登记日期</td>
+                <td>${data.createtime ? data.createtime.substring(0, 10) : ''}</td>
+                <td class="bgc-ebf2ff">审核日期</td>
+                <td>${data.checktime ? data.checktime.substring(0, 10) : ''}</td>
+                <td class="bgc-ebf2ff">采购日期</td>
+                <td>${data.starttime ? data.starttime.substring(0, 10) : ''}</td>
+                <td class="bgc-ebf2ff">出库日期</td>
+                <td>${data.endtime ? data.endtime.substring(0, 10) : ''}</td>
+            </tr>
+            <tr>
+                <td class="bgc-ebf2ff">运单号</td>
+                <td colspan="7">运单号数据</td>
+            </tr>
+            `
+
+            var layerIndex = layer.open({
+                title: "申请",
+                type: 1,
+                move: false,
+                area: ['1000px', '500px'],
+                content: $('#search').html()
+            });
+            $('#searchBody').append(tableTr);
+            $.each(data.returnOrderDetailList, (index, item) => {
+                console.log(item);
+                $('#titleBody').append(
+                    `<tr>
+                        <td>${item.returnOrderDetailUuid}</td>
+                        <td>${item.goodsname}</td>
+                        <td>${item.price}</td>
+                        <td>${item.num}</td>
+                        <td>${item.money}</td>
+                        <td>${item.state == 0 ? '未出库' : item.state == 1 ? '已出库' : ''}</td>
+                    </tr>`
+                )
+            })
+            table.init('demo-add');
+            table.on('row(demo-add)', function (obj) {
+                // console.log(obj.tr) //得到当前行元素对象
+                console.log(obj.data) //得到当前行数据
+                let thisTr = obj.tr;
+                let trs = obj.tr.parent().children();
+                thisTr.css('background', '#FBEC88').siblings().css('background', '');
+            });
+        });
+        //单击表格变色
+        table.on('row(orders-return-add-table-parseData)', function (obj) {
+            // console.log(obj.tr);
+            let thisTr = obj.tr;
+            let trs = obj.tr.parent().children();
+            thisTr.css('background', '#FBEC88').siblings().css('background', '');
+        });
+        // 表格按钮功能设置
+        // 新增按钮弹出框
+        $('#add-btn').click(function () {
+            layer.closeAll();
+            var layerIndex = layer.open({
+                title: "新增",
+                type: 1,
+                move: false,
+                area: ['1200px', '600px'],
+                content: $('#add').html()
+            });
+            //准备视图对象
+            var viewObj = {
+                tbData: [{
+                    goodsuuid: '',
+                    goodsname: '',
+                    num: '',
+                    money: '',
+                    price: ''
+                }],
+            };
+            var goodsAjax = layui.admin.req({
+                url: layui.setter.baseUrl + 'orders/listByPage1',
+            });
+            var supplierAjax = layui.admin.req({
+                url: layui.setter.baseUrl + 'orders/showsupplier?&type=1',
+            });
+            Promise.all([goodsAjax, supplierAjax]).then(res => {
+
+                var supplier = res[1].data.rows;
+                var goods = res[0].data.rows;
+                function select(d) {
+                    var option = '';
+                    for (var i = 0; i < goods.length; i++) {
+                        let text = goods[i].goodsname;
+                        let value = goods[i].goodsuuid;
+                        if (viewObj.tbData[d.LAY_TABLE_INDEX].goodsuuid == value) {
+                            option += `<option selected value=${value}>${text}</option>`
+                        } else {
+                            option += `<option value=${value}>${text}</option>`
+                        }
+
+
+                    }
+                    return option;
+                };
+                layui.use(['jquery', 'table', 'layer', 'form'], function () {
+                    var $ = layui.$, table = layui.table, form = layui.form, layer = layui.layer;
+                    //数据表格实例化			
+                    var tbWidth = $("#tableRes").width();
+                    var layTableId = "layTable";
+                    var tableInss = table.render({
+                        elem: '#dataTable',
+                        id: layTableId,
+                        data: viewObj.tbData,
+                        width: tbWidth,
+                        // page: true,
+                        limit: '100',
+                        loading: true,
+                        totalRow: true,
+                        totalRowText: '合计:',
+                        // even: false, //不开启隔行背景
+                        cols: [[
+                            { field: 'goodsuuid', title: '商品编号', width: 150 },
+                            {
+                                field: 'goodsname', title: '商品名称', templet: function (d) {
+                                    return `<select name="goodsname" data-index=${d.LAY_TABLE_INDEX} lay-filter="goodsname"><option value="0">请选择分类</option>' ${select(d)} '</select>`;
+                                }
+                            },
+                            { field: 'price', title: '价格' },
+                            { field: 'num', title: '数量', edit: 'number', totalRowText: '合计:' },
+                            { field: 'money', title: '总价', totalRow: true },
+                            {
+                                field: 'tempId', title: '操作', templet: function (d) {
+                                    return '<a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="del" lay-id="' + d.tempId + '"><i class="layui-icon layui-icon-delete"></i>移除</a>';
+                                }
+                            }
+                        ]],
+                        done: function (res, curr, count) {
+
+                            $.each(supplier, function (index, item) {
+                                $('#supplier').append(`<option value="${item.uuid}">${item.name}</option>`)
+                            })
+                            form.render();
+                            viewObj.tbData = res.data;
+                        }
+                    });
+
+                    //定义事件集合
+                    var active = {
+                        addRow: function () {	//添加一行
+                            var oldData = viewObj.tbData;
+                            var newRow = {
+                                "goodsuuid": '',
+                                "goodsname": '',
+                                "price": '',
+                                "money": '',
+                                "num": ''
+                            };
+                            oldData.push(newRow);
+                            tableInss.reload({
+                                data: oldData
+                            });
+
+                        },
+                        updateRow: function (obj) {
+                            var oldData = table.cache[layTableId];
+                            for (var i = 0, row; i < oldData.length; i++) {
+                                row = oldData[i];
+                                if (row.tempId == obj.tempId) {
+                                    $.extend(oldData[i], obj);
+                                    return;
+                                }
+                            }
+                            tableInss.reload({
+                                data: oldData
+                            });
+                        },
+                        removeEmptyTableCache: function () {
+                            var oldData = table.cache[layTableId];
+                            for (var i = 0, row; i < oldData.length; i++) {
+                                row = oldData[i];
+                                if (!row || !row.tempId) {
+                                    oldData.splice(i, 1);    //删除一项
+                                }
+                                continue;
+                            }
+                            tableInss.reload({
+                                data: oldData
+                            });
+                        },
+                        save: function () {
+                            var oldData = table.cache[layTableId];
+                            for (var i = 0, row; i < oldData.length; i++) {
+                                delete oldData[i].LAY_TABLE_INDEX;
+                                row = oldData[i];
+                                if (!row.goodsname) {
+                                    layer.msg("检查每一行，请选择商品名称！", { icon: 5 }); //提示
+                                    return false;
+                                } else if (row.num == '0') {
+                                    layer.msg("检查每一行，请选择商品数量！", { icon: 5 }); //提示
+                                    return false;
+                                }
+                            }
+                            var supplieruuid = form.val('supplier').supplier
+                            if (supplieruuid == '') {
+                                layer.msg("请选择供应商！", { icon: 5 }); //提示
+                                return false
+                            }
+
+                            var i = layer.confirm('是否申请退货该商品？', {
+                                btn: ['确认', '取消'] //可以无限个按钮
+                            }, function (index, layero) {
+                                var resData = {};
+                                resData.returnOrderDetails = oldData;
+                                resData.supplieruuid = supplieruuid;
+                                admin.req({
+                                    type: 'post',
+                                    url: layui.setter.baseUrl + 'returnorders/add',
+                                    data: JSON.stringify(resData),
+                                    contentType: 'application/json',
+                                    success: function (res) {
+                                        layer.open({
+                                            title: '新增'
+                                            , content: res.message
+                                        });
+                                        layer.close(layerIndex);
+                                        layui.table.reload('orders-return-add-table-parseData');
+                                    }
+                                })
+                            }, function (index) {
+                                layer.close(i);
+                            });
+                        }
+                    }
+
+                    //激活事件
+                    var activeByType = function (type, arg) {
+                        if (arguments.length === 2) {
+                            active[type] ? active[type].call(this, arg) : '';
+                        } else {
+                            active[type] ? active[type].call(this) : '';
+                        }
+                    }
+
+                    //注册按钮事件
+                    $('.layui-btn[data-type]').on('click', function () {
+                        var type = $(this).data('type');
+                        activeByType(type);
+                    });
+
+                    //监听select下拉选中事件
+                    form.on('select(goodsname)', function (data) {
+                        //获取当前行下标
+                        var index = parseInt($(data.elem).attr('data-index'));
+                        var goodsuuid = data.value;
+                        // 获取id对应商品信息
+                        var shop = goods.filter((item) => {
+                            return item.goodsuuid == goodsuuid;
+                        })
+                        $(data.elem).parent().parent().next().next().click();
+                        if (goodsuuid != 0) {
+                            viewObj.tbData[index].goodsuuid = shop[0].goodsuuid
+                            viewObj.tbData[index].goodsname = shop[0].goodsname
+                            viewObj.tbData[index].price = shop[0].inprice
+                            viewObj.tbData[index].num = '0'
+                            viewObj.tbData[index].money = '0.00'
+                            tableInss.reload({
+                                data: viewObj.tbData
+                            })
+
+                        } else {
+                            viewObj.tbData[index] = {};
+                            tableInss.reload({
+                                data: viewObj.tbData
+                            })
+                        }
+                        $('div[lay-id=layTable] tr').eq(index + 1).children().eq(3).click();
+                        console.log($('div[lay-id=layTable] tr').eq(index + 1).children().eq(3).children().eq(1).select());
+                    });
+
+
+                    // 监听商品数量改变
+                    table.on('edit(dataTable)', function (obj) {
+                        var index = $(obj.tr[0]).attr('data-index')
+                        if (!Number(obj.data.num) || obj.data.num < 0) {
+                            viewObj.tbData[index].num = ''
+                            viewObj.tbData[index].money = ''
+                            tableInss.reload({
+                                data: viewObj.tbData
+                            })
+                            return;
+                        }
+                        if (obj.field == 'num') {
+                            let num = obj.data.num;
+                            let price = obj.data.price;
+                            let money = num * price
+                            if (money != NaN) {
+                                viewObj.tbData[index].money = money.toFixed(2);
+                            }
+
+                        }
+                        tableInss.reload({
+                            data: viewObj.tbData
+                        })
+                    })
+                    //监听工具条
+                    table.on('tool(dataTable)', function (obj) {
+                        var data = obj.data, event = obj.event, tr = obj.tr; //获得当前行 tr 的DOM对象;
+                        switch (event) {
+                            case "del":
+                                var data_index = $(obj.tr[0]).attr('data-index');
+
+                                layer.confirm('真的删除行么？', function (index) {
+                                    viewObj.tbData.splice(data_index, 1);
+                                    console.log(viewObj);
+                                    layer.close(index);
+                                    // activeByType('removeEmptyTableCache');
+                                    tableInss.reload({
+                                        data: viewObj.tbData
+                                    })
+                                });
+                                break;
+                        }
+                    });
+                });
+            })
+        })
+    });
+
+    // 关闭弹框
+    function closeLayer() {
+        layer.closeAll();
+    }
+</script>
+
+<style>
+    .layui-col-md3,
+    #reset-btn,
+    #search-btn {
+        margin-top: 10px;
+    }
+
+    .card-add {
+        margin-top: 20px;
+    }
+
+    /* 弹框样式 */
+    .layui-btn-sm {
+        line-height: normal;
+        font-size: 12.5px;
+    }
+
+    .layui-table-view .layui-table-body {
+        min-height: 190px;
+    }
+
+    .layui-table-cell .layui-input.layui-unselect {
+        height: 30px;
+        line-height: 30px;
+    }
+
+    /*设置 layui 表格中单元格内容溢出可见样式*/
+    .table-overlay .layui-table-view,
+    .table-overlay .layui-table-box,
+    .table-overlay .layui-table-body {
+        overflow: visible;
+    }
+
+    .table-overlay .layui-table-cell {
+        height: auto;
+        overflow: visible;
+    }
+
+    /*文本对齐方式*/
+    .text-center {
+        text-align: center;
+    }
+
+    #toolbar {
+        margin-bottom: 10px;
+    }
+
+    .bgc-ebf2ff {
+        background-color: #f8f8f8;
+    }
+
+    .bgc-FBEC88 {
+        background-color: #FBEC88;
+    }
+
+    .bgc #layui-layer1 .layui-table tbody tr:hover,
+    #layui-layer1 .layui-table thead tr,
+    #layui-layer1 .layui-table-click,
+    #layui-layer1 .layui-table-header,
+    #layui-layer1 .layui-table-hover,
+    #layui-layer1 .layui-table-mend,
+    #layui-layer1 .layui-table-patch,
+    #layui-layer1 .layui-table-tool,
+    #layui-layer1 .layui-table[lay-even] tr:nth-child(even) {
+        background-color: transparent;
+    }
+
+    button[name="btnSave"] {
+        margin-top: 10px;
+    }
+</style>

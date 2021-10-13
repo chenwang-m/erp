@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.codingfuture.mapper.MenuMapper">
+
+    <resultMap id="menuSelect" type="com.codingfuture.dto.MenuLv1DTO">
+        <id property="title" column="name_lv1"/>
+        <result property="icon" column="icon"/>
+        <collection property="list" ofType="com.codingfuture.dto.MenuLv2DTO">
+            <result property="jump" column="url"/>
+            <result property="title" column="name_lv2"/>
+        </collection>
+    </resultMap>
+    <select id="getMenuSelect" resultMap="menuSelect">
+        SELECT m1.menu_name name_lv1,
+               m1.icon,
+               m2.menu_id,
+               m2.menu_name name_lv2,
+               m2.url
+        FROM menu m1
+                 JOIN menu m2 ON m1.menu_id LIKE '_00'
+            AND m2.pid = m1.menu_id
+        WHERE m2.menu_id IN (
+            SELECT DISTINCT rm.menuuuid
+            FROM emp_role er
+                     LEFT JOIN role_menu rm ON er.roleuuid = rm.roleuuid
+            WHERE er.empuuid = #{empUuid}
+              AND rm.menuuuid IS NOT NULL
+        )
+        ORDER BY m2.menu_id
+    </select>
+
+
+    <resultMap id="RoleMenuTree" type="com.codingfuture.dto.RoleMenuLv1DTO">
+        <id property="id" column="menuid_lv1"/>
+        <result property="title" column="menuname_lv1"/>
+        <collection property="children" ofType="com.codingfuture.dto.RoleMenuLv2DTO">
+            <id property="id" column="menuid_lv2"/>
+            <result property="title" column="menuname_lv2"/>
+            <result property="pid" column="pid"/>
+        </collection>
+    </resultMap>
+
+    <select id="selectAllRoleMenu" resultMap="RoleMenuTree">
+        SELECT DISTINCT m1.menu_id   menuid_lv1,
+                        m1.menu_name menuname_lv1,
+                        m2.menu_id   menuid_lv2,
+                        m2.menu_name menuname_lv2,
+                        m2.pid
+        FROM menu m1
+                 LEFT JOIN menu m2 ON m2.pid = m1.menu_id
+        WHERE m1.menu_id LIKE '%00'
+    </select>
+
+
+</mapper>

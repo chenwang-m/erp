@@ -1,0 +1,531 @@
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>人事管理</cite></a>
+        <a><cite>员工管理</cite></a>
+    </div>
+</div>
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-header">
+            员工管理
+        </div>
+        <div class="layui-card-body">
+            <!-- 查询 -->
+            <div class="layui-row">
+                <button type="button" class="layui-btn" id="add-btn">新增</button>
+            </div>
+            <div class="layui-row" style="margin-bottom: 10px;">
+                <form class="layui-form" lay-filter="formSearch">
+                    <div class="layui-col-md3">
+                        <div class="layui-inline">
+                            <label class="layui-form-label"
+                                style="width: 75px; text-align: left; padding-left: 0;">登录名:</label>
+                            <div class="layui-input-inline" style="width: 200px; ">
+                                <input type="text" name="userName" placeholder="登录名" autocomplete="off"
+                                    class="layui-input">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-col-md3">
+                        <div class="layui-inline">
+                            <label class="layui-form-label"
+                                style="width: 75px; text-align: left; padding-left: 0;">真实姓名:</label>
+                            <div class="layui-input-inline" style="width: 200px; ">
+                                <input type="text" name="name" placeholder="真实姓名" autocomplete="off"
+                                    class="layui-input">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-col-md3">
+                        <div class="layui-inline">
+                            <label class="layui-form-label"
+                                style="width: 75px; text-align: left; padding-left: 0;">性别:</label>
+                            <div class="layui-input-inline" style="width: 200px; ">
+                                <input type="radio" name="gender" value="1" title="男">
+                                <input type="radio" name="gender" value="0" title="女">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-col-md3">
+                        <div class="layui-inline">
+                            <label class="layui-form-label"
+                                style="width: 75px; text-align: left; padding-left: 0;">邮件地址:</label>
+                            <div class="layui-input-inline" style="width: 200px; ">
+                                <input type="text" name="email" placeholder="邮件地址" autocomplete="off"
+                                    class="layui-input">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-col-md3">
+                        <div class="layui-inline">
+                            <label class="layui-form-label"
+                                style="width: 75px; text-align: left; padding-left: 0;">联系电话:</label>
+                            <div class="layui-input-inline" style="width: 200px; ">
+                                <input type="text" name="tele" placeholder="联系电话" autocomplete="off"
+                                    class="layui-input">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-col-md3">
+                        <div class="layui-inline">
+                            <label class="layui-form-label"
+                                style="width: 75px; text-align: left; padding-left: 0;">联系地址:</label>
+                            <div class="layui-input-inline" style="width: 200px; ">
+                                <input type="text" name="address" placeholder="联系地址" autocomplete="off"
+                                    class="layui-input">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-col-md6">
+                        <div class="layui-inline" id="birthday">
+                            <label class="layui-form-label"
+                                style="width: 75px; text-align: left; padding-left: 0;">出生日期:</label>
+                            <div class="layui-input-inline" style="width: 200px; ">
+                                <input type="text" class="layui-input" autocomplete="off" name="bebirthday"
+                                    id="bebirthday" placeholder="开始日期">
+                            </div>
+                            到
+                            <div class="layui-input-inline" style="width: 200px; ">
+                                <input type="text" class="layui-input" autocomplete="off" name="afbirthday"
+                                    id="afbirthday" placeholder="结束日期">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-col-md3">
+                        <div class="layui-inline">
+                            <label class="layui-form-label"
+                                style="width: 75px; text-align: left; padding-left: 0;">部门:</label>
+                            <div class="layui-input-inline" style="width: 200px; ">
+                                <select name="depUuid" id="dep" lay-verify="">
+                                    <option value="">---请选择部门---</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="layui-btn" id="search-btn">搜索</button>
+                    <button type="reset" class="layui-btn" id="reset-btn">重置</button>
+                </form>
+            </div>
+            <!-- 表格 -->
+            <table id="emp-table-parseData" lay-filter="emp-table-parseData"></table>
+
+            <!-- 右侧按钮 -->
+            <script type="text/html" id="test-table-operate-barDemo">
+                <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+                <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+            </script>
+        </div>
+    </div>
+</div>
+
+
+<!-- 编辑按钮弹出框 -->
+<script type="text/html" id="edit">
+    <form class="layui-form" lay-filter="formEdit">
+        <div class="layui-row">
+            <div class="layui-col-md8 layui-col-md-offset1">
+                <div class="layui-form-item" style="margin-top: 10px;">
+                    <label class="layui-form-label">登录名:</label>
+                    <div class="layui-input-block">
+                        <input  type="text" name="userName" required lay-verify="required" placeholder="登录名" autocomplete="off"
+                            class="layui-input">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-md8 layui-col-md-offset1">
+                <div class="layui-form-item" style="margin-top: 10px;">
+                    <label class="layui-form-label">真实姓名:</label>
+                    <div class="layui-input-block">
+                        <input  type="text" name="name" required lay-verify="required" placeholder="真实姓名" autocomplete="off"
+                            class="layui-input">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-md8 layui-col-md-offset1">
+                <div class="layui-form-item" style="margin-top: 10px;">
+                    <label class="layui-form-label">性别:</label>
+                    <div class="layui-input-block">
+                        <input type="radio" name="gender" value="1" title="男">
+                        <input type="radio" name="gender" value="0" title="女">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-md8 layui-col-md-offset1">
+                <div class="layui-form-item" style="margin-top: 10px;">
+                    <label class="layui-form-label">邮件地址:</label>
+                    <div class="layui-input-block">
+                        <input  type="text" name="email" required lay-verify="required" placeholder="邮件地址" autocomplete="off"
+                            class="layui-input">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-md8 layui-col-md-offset1">
+                <div class="layui-form-item" style="margin-top: 10px;">
+                    <label class="layui-form-label">联系电话:</label>
+                    <div class="layui-input-block">
+                        <input  type="text" name="tele" required lay-verify="required" placeholder="联系电话" autocomplete="off"
+                            class="layui-input">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-md8 layui-col-md-offset1">
+                <div class="layui-form-item" style="margin-top: 10px;">
+                    <label class="layui-form-label">联系地址:</label>
+                    <div class="layui-input-block">
+                        <input  type="text" name="address" required lay-verify="required" placeholder="联系地址" autocomplete="off"
+                            class="layui-input">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-md8 layui-col-md-offset1">
+                <div class="layui-form-item" style="margin-top: 10px;">
+                    <label class="layui-form-label">出生年月日:</label>
+                    <div class="layui-input-block">
+                        <input type="text" class="layui-input" name="birthday" id="editDate" autocomplete="off">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-md8 layui-col-md-offset1">
+                <div class="layui-form-item" style="margin-top: 10px;">
+                    <label class="layui-form-label">部门:</label>
+                    <div class="layui-input-block">
+                        <select name="depUuid" id="depEdit" lay-verify="">
+                            <option value="">---请选择部门---</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        <div class="layui-row" style="display: none;">
+            <div class="layui-col-md8 layui-col-md-offset1">
+                <div class="layui-form-item" style="margin-top: 10px;">
+                    <label class="layui-form-label">id:</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="uuid" autocomplete="off"
+                            class="layui-input">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layui-row">
+            <div class="layui-form-item">
+                <div class="layui-col-md8 layui-col-md-offset4" >
+                    <div class="layui-form-item">
+                            <button type="button" class="layui-btn" onclick = "editShop()">确认</button>
+                            <button type="button" class="layui-btn layui-btn-primary" onclick="closeLayer()">取消</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</script>
+<!-- 新增按钮弹出框 -->
+<script type="text/html" id="add">
+    <form class="layui-form" lay-filter="formAdd">
+        <div class="layui-row">
+            <div class="layui-col-md8 layui-col-md-offset1">
+                <div class="layui-form-item" style="margin-top: 10px;">
+                    <label class="layui-form-label">登录名:</label>
+                    <div class="layui-input-block">
+                        <input  type="text" name="userName" required lay-verify="required" placeholder="登录名" autocomplete="off"
+                            class="layui-input">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-md8 layui-col-md-offset1">
+                <div class="layui-form-item" style="margin-top: 10px;">
+                    <label class="layui-form-label">真实姓名:</label>
+                    <div class="layui-input-block">
+                        <input  type="text" name="name" required lay-verify="required" placeholder="真实姓名" autocomplete="off"
+                            class="layui-input">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-md8 layui-col-md-offset1">
+                <div class="layui-form-item" style="margin-top: 10px;">
+                    <label class="layui-form-label">性别:</label>
+                    <div class="layui-input-block">
+                        <input type="radio" name="gender" value="1" title="男">
+                        <input type="radio" name="gender" value="0" title="女">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-md8 layui-col-md-offset1">
+                <div class="layui-form-item" style="margin-top: 10px;">
+                    <label class="layui-form-label">邮件地址:</label>
+                    <div class="layui-input-block">
+                        <input  type="text" name="email" required lay-verify="required" placeholder="邮件地址" autocomplete="off"
+                            class="layui-input">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-md8 layui-col-md-offset1">
+                <div class="layui-form-item" style="margin-top: 10px;">
+                    <label class="layui-form-label">联系电话:</label>
+                    <div class="layui-input-block">
+                        <input  type="text" name="tele" required lay-verify="required" placeholder="联系电话" autocomplete="off"
+                            class="layui-input">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-md8 layui-col-md-offset1">
+                <div class="layui-form-item" style="margin-top: 10px;">
+                    <label class="layui-form-label">联系地址:</label>
+                    <div class="layui-input-block">
+                        <input  type="text" name="address" required lay-verify="required" placeholder="联系地址" autocomplete="off"
+                            class="layui-input">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-md8 layui-col-md-offset1">
+                <div class="layui-form-item" style="margin-top: 10px;">
+                    <label class="layui-form-label">出生年月日:</label>
+                    <div class="layui-input-block">
+                        <input type="text" class="layui-input" name="birthday" id="addDate" autocomplete="off">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-md8 layui-col-md-offset1">
+                <div class="layui-form-item" style="margin-top: 10px;">
+                    <label class="layui-form-label">部门:</label>
+                    <div class="layui-input-block">
+                        <select name="depUuid" id="depAdd" lay-verify="">
+                            <option value="">---请选择部门---</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        <div class="layui-row">
+            <div class="layui-form-item">
+                <div class="layui-col-md8 layui-col-md-offset4" >
+                    <div class="layui-form-item">
+                            <button type="button" class="layui-btn" onclick="addShop()">新增</button>
+                            <button type="button" class="layui-btn layui-btn-primary closeLayer" onclick="closeLayer()">取消</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</script>
+
+<script>
+    layui.use(['admin', 'table', 'form', 'laydate'], function () {
+        var admin = layui.admin
+            , table = layui.table
+            , form = layui.form
+            , baseUrl = layui.setter.baseUrl
+            , $ = layui.$
+            , laydate = layui.laydate;
+
+        // 查询下拉列表
+        admin.req({
+            url: baseUrl + 'emp/deplist',
+            success: function (res) {
+                $.each(res.data.rows, function (i, item) {
+                    $('#dep').append(`<option value="${item.uuid}">${item.name}</option>`)
+                })
+                form.render(null, 'formSearch');
+            }
+        })
+
+        // 查询日期
+        laydate.render({
+            elem: '#birthday',
+            range: ['#bebirthday', '#afbirthday']
+        });
+
+        // 表格渲染        
+        form.render(null, 'formSearch')
+        var tableIns = table.render({
+            elem: '#emp-table-parseData'
+            // 请求地址
+            , url: baseUrl + 'emp/listByPage'
+            , toolbar: true
+            , title: '商品表'
+            , cellMinWidth: 120
+            // 是否开启加载loding
+            , loading: true
+            // 数据渲染规定
+            , cols: [[
+                { field: 'uuid', title: '员工编号', width: 110 }
+                , { field: 'userName', title: '登录名' }
+                , { field: 'name', title: '真实姓名' }
+                , {
+                    field: 'gender',
+                    title: '性别',
+                    templet: '<div>{{d.gender == 1 ? "男" : "女"}}</div>'
+                }
+                , { field: 'email', title: '邮件地址' }
+                , { field: 'tele', title: '联系电话' }
+                , { field: 'address', title: '联系地址' }
+                , { field: 'birthday', title: '出生年月' }
+                , { field: 'dep', title: '所属部门' }
+                , { title: '操作', toolbar: '#test-table-operate-barDemo', width: 120, fixed: 'right' }
+            ]]
+            // 开启分页
+            , page: true
+            , request: {
+                pageName: 'page',
+                limitName: 'rows'
+            }
+            , response: {
+                // statusName: 'code',
+                statusCode: 200 //重新规定成功的状态码为 200，table 组件默认为 0
+            }
+            , parseData: function (res) { //将原始数据解析成 table 组件所规定的数据
+                return {
+                    "code": res.code, //解析接口状态
+                    "msg": res.message, //解析提示文本
+                    "count": res.data.total, //解析数据长度
+                    "data": res.data.rows //解析数据列表
+                };
+            }
+        });
+
+        // 表格按钮功能设置
+        table.on('tool(emp-table-parseData)', function (obj) {
+            var data = obj.data;
+            // 删除按钮弹窗
+            if (obj.event === 'del') {
+                layer.confirm('是否删除该数据,删除后不可恢复!', { title: '删除' }, function (index) {
+                    // 获取该数据id
+                    // 发送登录请求
+                    admin.req({
+                        url: baseUrl + 'emp?id=' + data.uuid,
+                        type: 'delete',
+                        // data: {
+                        //     id: data.uuid
+                        // },
+                        done: function (res) {
+                            layer.open({
+                                title: '删除'
+                                , content: res.msg
+                            });
+                            table.reload('emp-table-parseData');
+                        }
+                    })
+                });
+            }
+            // 编辑按钮弹窗
+            if (obj.event === 'edit') {
+                layer.open({
+                    title: "编辑",
+                    type: 1,
+                    move: false,
+                    area: '500px',
+                    content: $('#edit').html()
+                });
+                laydate.render({
+                    elem: '#editDate'
+                });
+                admin.req({
+                    url: baseUrl + 'emp/deplist',
+                    success: function (res) {
+                        $.each(res.data.rows, function (i, item) {
+                            $('#depEdit').append(`<option value="${item.uuid}">${item.name}</option>`)
+                        })
+                        form.render(null, 'formEdit');
+                        admin.req({
+                            url: baseUrl + 'emp/selectone',
+                            data: {
+                                id: data.uuid
+                            },
+                            done: function (res) {
+                                res = res.data.rows[0];
+                                form.val("formEdit", res);
+                               
+                            }
+                        })
+                    }
+                })
+                // 请求数据
+
+            }
+        });
+        // 新增按钮弹出框
+        $('#add-btn').click(function () {
+            layer.closeAll();
+            layer.open({
+                title: "新增",
+                type: 1,
+                move: false,
+                area: '500px',
+                content: $('#add').html()
+            });
+            admin.req({
+                url: baseUrl + 'emp/deplist',
+                success: function (res) {
+                    $.each(res.data.rows, function (i, item) {
+                        $('#depAdd').append(`<option value="${item.uuid}">${item.name}</option>`)
+                    })
+                    form.render(null, 'formAdd');
+                }
+            })
+            laydate.render({
+                elem: '#addDate'
+            });
+        })
+        // 搜索功能
+        $('#search-btn').click(function () {
+            var data = form.val('formSearch');
+            console.log(data);
+            tableIns.reload({
+                where: data
+            })
+        })
+    });
+
+    // 关闭弹框
+    function closeLayer() {
+        layer.closeAll();
+    }
+
+    // 新增功能提交
+    function addShop() {
+        var data = layui.form.val("formAdd");
+        layui.admin.req({
+            url: layui.setter.baseUrl + 'emp/add',
+            type: 'post',
+            data: data,
+            done: function (res) {
+                layer.closeAll();
+                layer.open({
+                    title: '新增'
+                    , content: res.msg
+                });
+                layui.table.reload('emp-table-parseData');
+            }
+        })
+    }
+
+    // 编辑功能提交
+    function editShop() {
+        var data = layui.form.val("formEdit");
+        layui.admin.req({
+            url: layui.setter.baseUrl + 'emp/update',
+            type: 'post',
+            data: data,
+            done: function (res) {
+                layer.closeAll();
+                layer.open({
+                    title: '编辑'
+                    , content: res.msg
+                });
+                layui.table.reload('emp-table-parseData');
+            }
+        })
+    }
+</script>
+
+<style>
+    .layui-col-md3,
+    .layui-col-md6,
+    #reset-btn,
+    #search-btn {
+        margin-top: 10px;
+    }
+</style>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.codingfuture.mapper.StoreAlertMapper">
+
+    <insert id="insert">
+        INSERT into view_storealert (name, storenum, outnum)
+        VALUES (#{name}, #{storenum}, #{outnum});
+    </insert>
+
+    <select id="selectAll" resultType="com.codingfuture.entity.StoreAlert">
+        select uuid, `name`, storenum, outnum
+        from view_storealert
+    </select>
+
+    <select id="selectGoodsNames" resultType="java.lang.String">
+        select `name`
+        from view_storealert;
+    </select>
+</mapper>

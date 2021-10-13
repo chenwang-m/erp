@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.codingfuture.mapper.StoreDetailMapper">
+
+    <insert id="insert">
+        insert into storedetail (storeuuid, goodsuuid, num)
+        values (#{storeuuid}, #{goodsuuid}, #{num})
+    </insert>
+
+    <update id="updateNumById">
+        update storedetail
+        set num=#{num}
+        where uuid = #{storeDetailUuid}
+    </update>
+
+    <select id="selectByStoreUuidAndGoodsUuid" resultType="com.codingfuture.entity.StoreDetail">
+        select uuid, storeuuid, goodsuuid, num
+        from storedetail
+        where storeuuid = #{StoreUuid}
+          and goodsuuid = #{GoodsUuid}
+    </select>
+</mapper>

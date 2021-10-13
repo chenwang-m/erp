@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.codingfuture.mapper.GoodsMapper">
+    <resultMap id="goodsMap" type="com.codingfuture.entity.Goods" autoMapping="true">
+        <id property="uuid" column="uuid"/>
+    </resultMap>
+    <insert id="goodsAdd">
+        INSERT INTO goods(name, origin, producer, unit, inprice, outprice, goodstypeuuid)
+        VALUES (#{name}, #{origin}, #{producer}, #{unit}, #{inPrice}, #{outPrice}, #{goodsType})
+    </insert>
+    <update id="goodsUpdate">
+        update goods
+        set name          = #{name},
+            origin        = #{origin},
+            producer      = #{producer},
+            unit          = #{unit},
+            inprice       = #{inPrice},
+            outprice      = #{outPrice},
+            goodstypeuuid = #{goodsTypeUuid}
+        where uuid = #{uuid}
+    </update>
+    <delete id="goodsDel">
+        DELETE
+        FROM goods
+        WHERE uuid = #{uuid}
+    </delete>
+
+    <select id="findAllGoods" resultMap="goodsMap">
+        SELECT gs.uuid,gs.`name`,gs.origin,gs.producer,gs.unit,gs.inprice,
+        gs.outprice,gt.`name` goods_type
+        FROM goods gs LEFT JOIN goodstype gt
+
+        ON gs.goodstypeuuid=gt.uuid
+        <where>
+            <if test="name!=null and name !=''">
+                and gs.`name` like concat(concat('%',#{name},'%'))
+            </if>
+            <if test="origin!=null and origin !=''">
+                and gs.origin like concat(concat('%',#{origin},'%'))
+            </if>
+            <if test="producer!=null and producer !=''">
+                and gs.producer like concat(concat('%',#{producer},'%'))
+            </if>
+            <if test="unit!=null and unit !=''">
+                and gs.unit like concat(concat('%',#{unit},'%'))
+            </if>
+            <if test="inPrice!=null and inPrice !=''">
+                and gs.inprice &lt;= #{inPrice}
+            </if>
+            <if test="outPrice!=null and outPrice !=''">
+                and gs.outprice &lt;= #{outPrice}
+            </if>
+            <if test="goodsType!=null and goodsType !=''">
+                and gt.`name` like concat(concat('%',#{goodsType},'%'))
+            </if>
+        </where>
+
+    </select>
+    <select id="goodsTypeSelectAll" resultType="com.codingfuture.entity.GoodsType">
+        SELECT gt.uuid, gt.`name`
+        FROM goodstype gt
+    </select>
+    <select id="goodsFindById" resultType="com.codingfuture.entity.Goods">
+        select gs.`name`,
+               gs.origin,
+               gs.producer,
+               gs.unit,
+               gs.inPrice,
+               gs.outPrice,
+               gs.goodsTypeUuid,
+               gt.`name` goods_type,
+               gs.uuid
+        FROM goods gs
+                 LEFT JOIN goodstype gt
+                           ON gs.goodstypeuuid = gt.uuid
+        where gs.uuid = #{id}
+    </select>
+
+    <resultMap id="GoodsOrdersDTO" type="com.codingfuture.dto.GoodsForPurchaseDTO">
+        <id property="goodsuuid" column="uuid"/>
+        <result property="goodsname" column="name"/>
+        <result property="price" column="inprice"/>
+        <result property="inprice" column="inprice"/>
+        <result property="outprice" column="outprice"/>
+    </resultMap>
+    <!--    对 goods表 进行查询全部-->
+    <select id="getGoodsListForOrders" resultMap="GoodsOrdersDTO">
+        select uuid, name, inprice,outprice
+        from goods
+    </select>
+
+    <select id="countByName" resultType="java.lang.Integer">
+        select count(*) from goods where name=#{name}
+    </select>
+</mapper>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.codingfuture.mapper.RoleMapper">
+    <resultMap id="getRoleList" type="com.codingfuture.dto.RoleDTO">
+        <id property="uuid" column="uuid"/>
+    </resultMap>
+    <insert id="addRole">
+        INSERT INTO role(name)
+        VALUES (#{name})
+    </insert>
+    <update id="updateRole">
+        UPDATE role SET name = #{name} WHERE uuid = #{uuid}
+    </update>
+    <delete id="deleteRole">
+        DELETE FROM role WHERE uuid = #{id}
+    </delete>
+    <select id="roleList" resultMap="getRoleList">
+        SELECT *
+        FROM role
+        <where>
+            <if test="name != null and name != ''">
+                and name like "%"#{name}"%"
+            </if>
+            <if test="id !=null">
+                and uuid = #{id}
+            </if>
+        </where>
+    </select>
+    <select id="findAllUpdateRoleName" resultType="java.lang.String">
+        SELECT name FROM role where uuid != #{id}
+    </select>
+
+    <update id="insert">
+        insert into role_menu values
+        <foreach collection="menuUuids" item="menuUuid" separator=",">
+            (#{roleUuid},#{menuUuid})
+        </foreach>
+    </update>
+
+    <delete id="deleteById">
+        delete
+        from role_menu
+        where roleuuid = #{id}
+    </delete>
+
+    <select id="selectAllRole" resultType="com.codingfuture.entity.Role">
+        SELECT *
+        FROM role
+    </select>
+
+    <select id="selectAllRoleMenu" resultType="com.codingfuture.dto.EmpRoleMenuDTO">
+        select uuid id,
+               name title
+        from role
+    </select>
+
+</mapper>

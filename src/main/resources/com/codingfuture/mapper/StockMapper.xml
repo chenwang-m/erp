@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.codingfuture.mapper.StockMapper">
+
+    <resultMap id="getFindAllGoodsName" type="com.codingfuture.dto.StockGoodsDTO" autoMapping="true">
+        <id property="uuid" column="uuid"/>
+        <result property="goodsName" column="name"/>
+    </resultMap>
+    <select id="findAllGoodsName" resultMap="getFindAllGoodsName">
+        SELECT *
+        FROM goods
+    </select>
+    <resultMap id="getFindAllStockName" type="com.codingfuture.dto.StockStoreDTO" autoMapping="true">
+        <id property="uuid" column="uuid"/>
+        <result property="storeName" column="name"/>
+    </resultMap>
+    <select id="findAllStockName" resultMap="getFindAllStockName">
+        SELECT *
+        FROM store
+    </select>
+
+    <resultMap id="getStoreDetailList" type="com.codingfuture.dto.StockDetailDTO" autoMapping="true">
+        <id property="uuid" column="stockuuid"/>
+    </resultMap>
+    <select id="storeDetailList" resultMap="getStoreDetailList">
+        SELECT
+        s.uuid storeId,
+        s.`name` storeName,
+        sd.uuid stockuuid,
+        sd.num,
+        g.uuid goodsuuid,
+        g.`name` goodsName
+        FROM
+        store s
+        RIGHT JOIN storedetail sd ON s.uuid = sd.storeuuid
+        LEFT JOIN goods g ON sd.goodsuuid = g.uuid
+        <where>
+            <if test="param1 != null">
+                and s.uuid = #{param1}
+            </if>
+            <if test="param2 != null">
+                and g.uuid = #{param2}
+            </if>
+            and sd.num>0
+        </where>
+        ORDER BY
+        sd.uuid ASC
+    </select>
+</mapper>

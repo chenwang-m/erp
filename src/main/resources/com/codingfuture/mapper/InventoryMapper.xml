@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.codingfuture.mapper.InventoryMapper">
+    <insert id="addInventory">
+        INSERT INTO inventory (goodsuuid, storeuuid, num, type, createtime, creater, state, remark)
+        VALUES (#{goodsuuid}, #{storeuuid}, #{num}, #{type}, now(), #{creater}, #{state}, #{remark})
+    </insert>
+    <insert id="insert">
+        insert into storedetail (storeuuid, goodsuuid, num)
+        values (#{storeuuid}, #{goodsuuid}, #{num})
+    </insert>
+    <insert id="insertStoreOper">
+        insert into storeoper (empuuid,opertime, storeuuid, goodsuuid, num, type)
+        values (#{empuuid},now(), #{storeuuid}, #{goodsuuid}, #{num}, #{type})
+    </insert>
+    <update id="updateInventory">
+        UPDATE inventory
+        SET goodsuuid = #{goodsuuid},
+            storeuuid = #{storeuuid},
+            num       = #{num},
+            type      = #{type},
+            remark    = #{remark},
+            checktime = now(),
+            checker   = #{checker},
+            state     = #{state}
+        WHERE uuid = #{uuid}
+    </update>
+    <update id="updateNumById">
+        update storedetail
+        set num=#{newNum}
+        where uuid = #{detailUuid}
+    </update>
+    <delete id="deleteInventory">
+        DELETE
+        FROM inventory
+        WHERE uuid = #{id}
+    </delete>
+    <resultMap id="getInventoryList" type="com.codingfuture.dto.InventoryDTO" autoMapping="true">
+        <id property="uuid" column="uuid"/>
+    </resultMap>
+    <select id="inventoryList" resultMap="getInventoryList">
+        SELECT
+        inv.uuid,
+        inv.goodsuuid,
+        inv.storeuuid,
+        inv.num,
+        inv.type,
+        inv.createtime,
+        inv.checktime,
+        inv.creater,
+        inv.checker,
+        inv.state,
+        inv.remark,
+        gs.`name` goodsName,
+        st.`name` storeName
+        FROM
+        inventory inv
+        LEFT JOIN goods gs ON inv.goodsuuid = gs.uuid
+        LEFT JOIN store st ON inv.storeuuid = st.uuid
+        <where>
+            <if test="goodsName!=null and goodsName!=''">
+                and gs.`name` like "%"#{goodsName}"%"
+            </if>
+            <if test="storeName!=null and storeName!=''">
+                and st.`name` like "%"#{storeName}"%"
+            </if>
+            <if test="num != null">
+                and inv.num = #{num}
+            </if>
+            <if test="type != null and type != ''">
+                and inv.type like "%"#{type}"%"
+            </if>
+            <if test="createtime != null and createtime !=''">
+                and inv.createtime like "%"#{createtime}"%"
+            </if>
+            <if test="checktime !=null and checktime !=''">
+                inv.checktime like "%"#{checktime}"%"
+            </if>
+            <if test="creater !=null and creater != ''">
+                inv.creater like "%"#{creater}"%"
+            </if>
+            <if test="checker != null and checker != ''">
+                inv.checker like "%"#{checker}"%"
+            </if>
+            <if test="state != null and state != ''">
+                inv.state like "%"#{state}"%"
+            </if>
+            <if test="remark != null and remark != ''">
+                inv.remark like "%"#{remark}"%"
+            </if>
+        </where>
+        ORDER BY inv.uuid
+    </select>
+    <resultMap id="getFindOneInventory" type="com.codingfuture.dto.InventoryDTO">
+        <id property="uuid" column="uuid"/>
+    </resultMap>
+    <select id="findOneInventory" resultMap="getFindOneInventory">
+        SELECT inv.uuid,
+               inv.goodsuuid,
+               inv.storeuuid,
+               inv.num,
+               inv.type,
+               inv.createtime,
+               inv.checktime,
+               inv.creater,
+               inv.checker,
+               inv.state,
+               inv.remark,
+               gs.`name` goodsName,
+               st.`name` storeName
+        FROM inventory inv
+                 LEFT JOIN goods gs ON inv.goodsuuid = gs.uuid
+                 LEFT JOIN store st ON inv.storeuuid = st.uuid
+        where inv.uuid = #{id}
+    </select>
+    <select id="selectByStoreUuidAndGoodsUuid" resultType="com.codingfuture.entity.StoreDetail">
+        select uuid, storeuuid, goodsuuid, num
+        from storedetail
+        where storeuuid = #{storeUuid}
+          and goodsuuid = #{goodsUuid}
+    </select>
+</mapper>

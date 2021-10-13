@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.codingfuture.mapper.OrdersMapper">
+
+    <insert id="insert" parameterType="com.codingfuture.dto.OrderWithOrderDetailsDTO" useGeneratedKeys="true"
+            keyProperty="ordersuuid" keyColumn="uuid">
+        insert into orders (createtime, type, creater, supplieruuid, state, totalmoney)
+        values (now(), #{type}, #{creater}, #{supplieruuid}, '0', #{totalmoney})
+    </insert>
+
+    <update id="updateState">
+        update orders
+        set state=#{state}
+        <if test="state=='1'.toString()">
+            , checktime=now(),checker=#{operator}
+        </if>
+        <if test="state=='2'.toString()">
+            , starttime=now(),starter=#{operator}
+        </if>
+        <if test="state=='3'.toString()">
+            , endtime=now(),ender=#{operator}
+        </if>
+        where uuid = #{ordersUuid}
+    </update>
+
+
+    <resultMap id="OrdersWithSuppliername" type="com.codingfuture.dto.OrdersWithSupplierNameDTO" autoMapping="true">
+        <id property="uuid" column="order_uuid"/>
+        <result property="startername" column="starter"/>
+        <result property="creatername" column="creater"/>
+        <result property="checkername" column="checker"/>
+        <result property="endername" column="ender"/>
+        <result property="suppliername" column="name"/>
+        <result property="state" column="order_state"/>
+        <collection property="orderDetailList" ofType="com.codingfuture.dto.OrderDetailDTO"
+                    autoMapping="true">
+            <id property="orderDetailUuid" column="order_detail_uuid"/>
+            <result property="state" column="order_detail_state"/>
+        </collection>
+    </resultMap>
+    <select id="selectByTypeAndState" resultMap="OrdersWithSuppliername">
+        SELECT o.uuid order_uuid,
+        o.createtime,
+        o.checktime,
+        o.starttime,
+        o.endtime,
+        o.type,
+        o.creater,
+        o.checker,
+        o.starter,
+        o.ender,
+        o.totalmoney,
+        o.state order_state,
+        o.waybillsn,
+        s.`name`,
+        od.uuid order_detail_uuid,
+        od.goodsname,
+        od.goodsuuid,
+        od.price,
+        od.num,
+        od.money,
+        od.state order_detail_state
+        FROM orders o
+        LEFT JOIN orderdetail od ON o.uuid = od.ordersuuid
+        LEFT JOIN supplier s ON o.supplieruuid = s.uuid
+        <where>
+            o.type=#{type}
+            <if test="state!=null and state!=''">
+                and o.state=#{state}
+            </if>
+        </where>
+    </select>
+
+    <update id="updateForMarketOut">
+        update orders
+        set state='1',
+            endtime=now(),
+            ender=#{operator}
+        where uuid = #{ordersUuid}
+    </update>
+</mapper>

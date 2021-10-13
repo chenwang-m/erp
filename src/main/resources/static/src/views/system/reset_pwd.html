@@ -1,0 +1,73 @@
+<form class="layui-form" lay-filter="change_pwd">
+    <div class="layui-row">
+
+        <div class="layui-col-md8 layui-col-md-offset1">
+            <div class="layui-form-item" style="margin-top: 10px;">
+                <label class="layui-form-label">旧密码:</label>
+                <div class="layui-input-block">
+                    <input type="password" name="oldPwd" required lay-verify="required" placeholder="修改密码"
+                        autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="layui-row">
+        <div class="layui-col-md8 layui-col-md-offset1">
+            <div class="layui-form-item" style="margin-top: 10px;">
+                <label class="layui-form-label">新密码:</label>
+                <div class="layui-input-block">
+                    <input type="password" name="newPwd" required lay-verify="required" placeholder="修改密码"
+                        autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="layui-row">
+        <div class="layui-form-item">
+            <div class="layui-col-md8 layui-col-md-offset4">
+                <div class="layui-form-item">
+                    <button type="button" class="layui-btn" onclick="changePwd()">修改</button>
+                    <button type="button" class="layui-btn layui-btn-primary closeLayer"
+                        onclick="closeLayer()">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<script>
+    var baseUrl = layui.setter.baseUrl
+    function changePwd() {
+        var data = layui.form.val("change_pwd");
+        console.log(data);
+        if (data.pwd != '') {
+            var i = layer.confirm('是否要修改密码？', {
+                btn: ['确认', '取消'] //可以无限个按钮
+            }, function (index, layero) {
+                layui.admin.req({
+                    url: baseUrl + 'updatepwd',
+                    data: data,
+                    type: 'post',
+                    done: function (res) {
+                        // 回调
+                        layer.closeAll();
+                        layer.open({
+                            title: '成功'
+                            , content: res.msg
+                        });
+                        layui.admin.exit();
+                    }
+                })
+            }, function (index) {
+                layer.close(i);
+            });
+        } else {
+            layer.msg("请输入密码！", { icon: 5 });
+        }
+    }
+
+    function closeLayer() {
+        layer.closeAll();
+    }
+</script>

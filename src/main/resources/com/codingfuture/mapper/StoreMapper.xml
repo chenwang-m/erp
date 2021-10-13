@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.codingfuture.mapper.StoreMapper">
+    <resultMap id="findStore" type="com.codingfuture.entity.Store">
+        <id property="uuid" column="uuid"/>
+    </resultMap>
+    <insert id="storeAdd">
+            INSERT INTO store(name,empuuid)
+            VALUES (#{name},#{empuuid})
+    </insert>
+    <update id="storeUpdate">
+        update store set name = #{name},empuuid = #{empuuid}
+       where uuid=#{uuid}
+    </update>
+
+    <delete id="storeDel">
+        DELETE
+        FROM store
+        WHERE uuid = #{id}
+    </delete>
+    <select id="findAllStore" resultMap="findStore">
+        select uuid,name,empuuid
+        from store
+        <where>
+            <if test="empuuid!=null and empuuid !=''">
+                and empuuid like concat(concat('%',#{empuuid},'%'))
+            </if>
+            <if test="name!=null and name !=''">
+                and name like concat(concat('%',#{name},'%'))
+            </if>
+        </where>
+    </select>
+    <select id="storeUpdateById" resultType="com.codingfuture.entity.Store">
+        select * from store where uuid = #{id}
+    </select>
+</mapper>

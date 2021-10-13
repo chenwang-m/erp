@@ -1,0 +1,151 @@
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>权限分配</cite></a>
+        <a><cite>用户角色设置</cite></a>
+    </div>
+</div>
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-header">用户角色设置</div>
+        <div class="layui-card-body">
+            <div class="layui-row">
+                <div class="layui-col-md4">
+                    <div class="layui-card">
+                        <div class="layui-card-header"><b>用户列表</b></div>
+                        <div class="layui-card-body">
+                            <table id="userLoginDTO-role-table" lay-filter="userLoginDTO-role-table"></table>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-col-md8">
+                    <div class="layui-card">
+                        <div class="layui-card-header">
+                            <b>角色设置</b>
+                            <button class="layui-btn layui-btn update">保存</button>
+                        </div>
+                        <div class="layui-card-body">
+                            <div id="tree"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    layui.use(['table', 'admin', 'form', 'tree'], function () {
+        var admin = layui.admin
+            , table = layui.table
+            , form = layui.form
+            , baseUrl = layui.setter.baseUrl
+            , $ = layui.$
+            , tree = layui.tree;
+
+
+        //第一个实例
+        table.render({
+            elem: '#userLoginDTO-role-table'
+            , url: baseUrl + 'emp_list'
+            , title: '用户角色设置'
+            , loading: true
+            , method: 'post'
+            , cols: [[
+                { field: 'uuid', title: '员工编号' }
+                , { field: 'name', title: '员工姓名' }
+            ]]
+            // 开启分页
+            , page: {
+                layout: ['prev', 'page', 'next', 'count', 'skip'],
+            }
+            , request: {
+                pageName: 'page',
+                limitName: 'rows'
+            }
+            , response: {
+                // statusName: 'code',
+                statusCode: 200 //重新规定成功的状态码为 200，table 组件默认为 0
+            }
+            , parseData: function (res) { //将原始数据解析成 table 组件所规定的数据
+                return {
+                    "code": res.code, //解析接口状态
+                    "msg": res.message, //解析提示文本
+                    "count": res.data.total, //解析数据长度
+                    "data": res.data.rows //解析数据列表
+                };
+            },
+            done: function () {
+                $('tbody').children().eq(0).click();
+            }
+        });
+
+        let userId = ''
+        table.on('row(userLoginDTO-role-table)', function (obj) {
+            // table.render(null, 'userLoginDTO-role-table')
+            let thisTr = obj.tr;
+            let trs = obj.tr.parent().children();
+            thisTr.css('background', '#FBEC88').siblings().css('background', '');
+            userId = obj.data.uuid;
+            admin.req({
+                url: baseUrl + `emp_readEmpRoles?id=${obj.data.uuid}`,
+                type: 'post',
+                success: function (res) {
+                    tree.render({
+                        elem: '#tree',
+                        data: res.data.rows,
+                        showCheckbox: true,
+                        id: 'tree',
+                        accordion: true
+                    })
+                }
+            })
+        })
+
+        $('.update').click(function () {
+            if (userId != '') {
+                var i = layer.confirm('是否要修改当前用户角色？', {
+                    btn: ['确认', '取消'] //可以无限个按钮
+                }, function (index, layero) {
+                    var checkData = tree.getChecked('tree');
+                    var arr = [];
+                    $.each(checkData, function (index, item) {
+                        arr.push(item.id)
+                    })
+                    console.log(arr);
+                    admin.req({
+                        url: baseUrl + 'emp_updateEmpRoles',
+                        type: 'post',
+                        data: {
+                            id: userId,
+                            checkedStr: arr.toString()
+                        },
+                        success: function (res) {
+                            layer.open({
+                                title: '保存'
+                                , content: res.msg
+                            });
+                        }
+                    })
+                }, function (index) {
+                    layer.close(i);
+                });
+            } else {
+                layer.msg("请选择角色！", { icon: 5 });
+            }
+
+        })
+
+    });
+
+
+</script>
+
+<style>
+    .update {
+        margin-left: 20px;
+        /* margin-bottom: 20px; */
+    }
+</style>

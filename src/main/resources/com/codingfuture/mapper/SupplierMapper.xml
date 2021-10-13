@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.codingfuture.mapper.SupplierMapper">
+
+    <insert id="insert">
+        insert into supplier (name, address, contact, tele, email, type)
+        values (#{supplier.name}, #{supplier.address}, #{supplier.contact}, #{supplier.tele}, #{supplier.email},
+                #{type})
+    </insert>
+    <update id="update">
+        update supplier
+        set name=#{name},
+            address = #{address},
+            contact=#{contact},
+            tele=#{tele},
+            email=#{email}
+        where uuid = #{uuid}
+    </update>
+    <delete id="deleteById">
+        delete
+        from supplier
+        where uuid = #{id}
+    </delete>
+
+    <!--    根据 type 对 supplier表 进行模糊查询-->
+    <select id="select" resultType="com.codingfuture.entity.Supplier">
+        select uuid, name, address, contact, tele, email
+        from supplier
+        <where>
+            <if test="supplier.name!=null and supplier.name != ''">
+                and name like CONCAT('%',#{supplier.name},'%')
+            </if>
+            <if test="supplier.address!=null and supplier.address != ''">
+                and address like CONCAT('%',#{supplier.address},'%')
+            </if>
+            <if test="supplier.contact!=null and supplier.contact != ''">
+                and contact like CONCAT('%',#{supplier.contact},'%')
+            </if>
+            <if test="supplier.tele!=null and supplier.tele != ''">
+                and tele like CONCAT('%',#{supplier.tele},'%')
+            </if>
+            <if test="supplier.email!=null and supplier.email != ''">
+                and email like CONCAT('%',#{supplier.email},'%')
+            </if>
+            and type=#{type}
+        </where>
+    </select>
+
+    <select id="selectById" resultType="com.codingfuture.entity.Supplier">
+        select uuid, name, address, contact, tele, email
+        from supplier
+        where uuid = #{id}
+    </select>
+
+    <select id="countByName" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM supplier
+        WHERE `name` = #{name};
+    </select>
+</mapper>

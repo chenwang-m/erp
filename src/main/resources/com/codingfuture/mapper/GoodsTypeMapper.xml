@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.codingfuture.mapper.GoodsTypeMapper">
+    <resultMap id="findType" type="com.codingfuture.entity.GoodsType">
+        <id property="uuid" column="uuid"/>
+    </resultMap>
+    <insert id="goodsTypeAdd">
+        INSERT INTO goodstype(name)
+        VALUES (#{name})
+    </insert>
+    <update id="goodsTypeUpdate">
+        update goodstype set name = #{name} where uuid=#{uuid}
+    </update>
+    <delete id="goodsTypeDel">
+        DELETE
+        FROM goodstype
+        WHERE uuid = #{id}
+    </delete>
+    <select id="findAllGoodsType" resultMap="findType">
+        select uuid,name
+        from goodstype
+        <where>
+            <if test="uuid!=null and uuid !=''">
+                and uuid=#{uuid}
+            </if>
+            <if test="name!=null and name !=''">
+                and name like concat(concat('%',#{name},'%'))
+            </if>
+        </where>
+    </select>
+    <select id="goodsTypeUpdateById" resultType="com.codingfuture.entity.GoodsType">
+        select * from goodstype where uuid = #{id}
+    </select>
+
+
+</mapper>

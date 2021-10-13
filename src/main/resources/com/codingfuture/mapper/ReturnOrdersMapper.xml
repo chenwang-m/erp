@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.codingfuture.mapper.ReturnOrdersMapper">
+
+    <insert id="insert" parameterType="com.codingfuture.dto.ReturnOrdersWithReturnOrderDetailsDTO"
+            useGeneratedKeys="true"
+            keyProperty="returnOrdersuuid" keyColumn="uuid">
+        insert into returnorders (createtime, creater, supplieruuid, totalmoney, state)
+        values (now(), #{creater}, #{supplieruuid}, #{totalmoney}, '0')
+    </insert>
+
+    <update id="updateState">
+        update returnorders
+        set state=#{state}
+        <if test="state=='1'.toString()">
+            ,checktime=now()
+            ,checker=#{operator}
+        </if>
+        <if test="state=='3'.toString()">
+            ,endtime=now()
+            ,ender=#{operator}
+        </if>
+        where uuid = #{returnOrdersUuid}
+    </update>
+
+    <resultMap id="ReturnOrdersWithSupplierName" type="com.codingfuture.dto.ReturnOrdersWithSupplierNameDTO"
+               autoMapping="true">
+        <id property="uuid" column="return_order_uuid"/>
+        <result property="startername" column="starter"/>
+        <result property="creatername" column="creater"/>
+        <result property="checkername" column="checker"/>
+        <result property="endername" column="ender"/>
+        <result property="suppliername" column="name"/>
+        <result property="state" column="return_orders_state"/>
+        <collection property="returnOrderDetailList" ofType="com.codingfuture.dto.ReturnOrderDetailDTO"
+                    autoMapping="true">
+            <id property="returnOrderDetailUuid" column="return_order_detail_uuid"/>
+            <result property="state" column="return_orders_detail_state"/>
+        </collection>
+    </resultMap>
+    <select id="selectByState" resultMap="ReturnOrdersWithSupplierName">
+        SELECT ro.uuid return_order_uuid,
+        ro.createtime,
+        ro.checktime,
+        ro.endtime,
+        ro.creater,
+        ro.checker,ro.ender,
+        ro.supplieruuid,
+        ro.totalmoney,
+        ro.state return_orders_state,
+        rod.uuid return_order_detail_uuid,
+        rod.goodsuuid,
+        rod.goodsname,
+        rod.price,
+        rod.num,
+        rod.money,
+        rod.state return_orders_detail_state,
+        s.name
+        FROM returnorders ro
+        LEFT JOIN returnorderdetail rod ON ro.uuid = rod.returnordersuuid
+        LEFT JOIN supplier s ON ro.supplieruuid = s.uuid
+        <where>
+            <if test="stateCode!=null and stateCode!=''">
+                and ro.state=#{stateCode}
+            </if>
+        </where>
+    </select>
+</mapper>

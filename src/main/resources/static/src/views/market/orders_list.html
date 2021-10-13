@@ -1,0 +1,241 @@
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>销售管理</cite></a>
+        <a><cite>销售订单查询</cite></a>
+    </div>
+</div>
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-header">销售订单查询</div>
+        <div class="layui-card-body">
+            <!-- 表格 -->
+            <table id="orders-list-table-parseData" lay-filter="orders-list-table-parseData"></table>
+        </div>
+    </div>
+</div>
+
+<!-- 双击表格行弹出框 -->
+<script type="text/html" id="search">
+    <div style="padding: 15px 30px;">
+        <table class="layui-table">
+            <tbody id="searchBody">
+                
+            </tbody>
+        </table>
+        <table class="layui-table" style="margin-top: 30px;" lay-filter="demo">
+            <thead>
+                <tr style="background-color: #f8f8f8;">
+                    <th lay-data="{field:'uuid'}">商品编号</th>
+                    <th lay-data="{field:'goodsname'}">商品名称</th>
+                    <th lay-data="{field:'price'}">价格</th>
+                    <th lay-data="{field:'num'}">数量</th>
+                    <th lay-data="{field:'money'}">金额</th>
+                    <th lay-data="{field:'state'}">状态</th>
+                </tr>
+            </thead>
+            <tbody id="titleBody">
+    
+            </tbody>
+        </table>
+    </div>
+</script>
+
+<script>
+    layui.use(['admin', 'table', 'form'], function () {
+        var admin = layui.admin
+            , table = layui.table
+            , form = layui.form
+            , baseUrl = layui.setter.baseUrl
+            , $ = layui.$;
+
+        // 表格渲染
+        var tableIns = table.render({
+            elem: '#orders-list-table-parseData'
+            // 请求地址
+            , url: baseUrl + 'market/listByPage?state=1'
+            , toolbar: true
+            , title: '采购申请表'
+            , cellMinWidth: 120
+            // 是否开启加载loding
+            , loading: true
+            // 数据渲染规定
+            , cols: [[
+                { field: 'uuid', title: '编号', width: 110 }
+                , { field: 'createtime', title: '下单日期', templet: '<div>{{d.createtime ? d.createtime.substring(0,10) : ""}}</div>' }
+                , { field: 'creatername', title: '下单员' }
+                , { field: 'endtime', title: '出库日期', templet: '<div>{{d.endtime ? d.endtime.substring(0,10) : ""}}</div>' }
+                , { field: 'endername', title: '库管员' }
+                , { field: 'suppliername', title: '客户' }
+                , { field: 'totalmoney', title: '合计金额' }
+                , { field: 'state', title: '状态', templet: '<div>{{d.state == 0 ? "未出库" : d.state == 1 ? "已出库" : ""}}</div>' }
+                // , { title: '操作', toolbar: '#test-table-operate-barDemo', width: 120, fixed: 'right' }
+            ]]
+            // 开启分页
+            , page: true
+            , request: {
+                pageName: 'page',
+                limitName: 'rows'
+            }
+            , response: {
+                // statusName: 'code',
+                statusCode: 200 //重新规定成功的状态码为 200，table 组件默认为 0
+            }
+            , parseData: function (res) { //将原始数据解析成 table 组件所规定的数据
+                return {
+                    "code": res.code, //解析接口状态
+                    "msg": res.message, //解析提示文本
+                    "count": res.data.total, //解析数据长度
+                    "data": res.data.rows //解析数据列表
+                };
+            }
+        });
+        // 双击表格弹窗
+        table.on('rowDouble(orders-list-table-parseData)', function (obj) {
+            var data = obj.data;
+            var tableTr = `
+            <tr>
+                <td class="bgc-ebf2ff">流水号</td>
+                <td>${data.uuid ? data.uuid : ''}</td>
+                <td class="bgc-ebf2ff">客户</td>
+                <td colspan="3">${data.suppliername ? data.suppliername : ''}</td>
+                <td class="bgc-ebf2ff">状态</td>
+                <td>${data.state == 0 ? '未出库' : data.state == 1 ? '已出库' : ''}</td>
+            </tr>
+            <tr>
+                <td class="bgc-ebf2ff">下单员</td>
+                <td>${data.creatername ? data.creatername : ''}</td>
+                <td class="bgc-ebf2ff ">审核员</td>
+                <td  width="100px">${data.checkername ? data.checkername : ''}</td>
+                <td class="bgc-ebf2ff">采购员</td>
+                <td width="100px">${data.startername ? data.startername : ''}</td>
+                <td class="bgc-ebf2ff">库管员</td>
+                <td width="100px">${data.endername ? data.endername : ''}</td>
+            </tr>
+            <tr>
+                <td class="bgc-ebf2ff">下单日期</td>
+                <td>${data.createtime ? data.createtime.substring(0, 10) : ''}</td>
+                <td class="bgc-ebf2ff">审核日期</td>
+                <td>${data.checktime ? data.checktime.substring(0, 10) : ''}</td>
+                <td class="bgc-ebf2ff">采购日期</td>
+                <td>${data.starttime ? data.starttime.substring(0, 10) : ''}</td>
+                <td class="bgc-ebf2ff">出库日期</td>
+                <td>${data.endtime ? data.endtime.substring(0, 10) : ''}</td>
+            </tr>
+            <tr>
+                <td class="bgc-ebf2ff">运单号</td>
+                <td colspan="7">运单号数据</td>
+            </tr>
+            `
+            var layerIndex = layer.open({
+                title: "查询",
+                type: 1,
+                move: false,
+                area: ['1000px', '500px'],
+                content: $('#search').html()
+            });
+            $('#searchBody').append(tableTr);
+            $.each(data.orderDetailList, (index, item) => {
+                console.log(item);
+                $('#titleBody').append(
+                    `<tr>
+                        <td>${item.orderDetailUuid}</td>
+                        <td>${item.goodsname}</td>
+                        <td>${item.price}</td>
+                        <td>${item.num}</td>
+                        <td>${item.money}</td>
+                        <td>${item.state == 0 ? '未出库' : item.state == 1 ? '已出库' : ''}</td>
+                    </tr>`
+                )
+            })
+            table.init('demo');
+            table.on('row(demo)', function (obj) {
+                let thisTr = obj.tr;
+                let trs = obj.tr.parent().children();
+                thisTr.css('background', '#FBEC88').siblings().css('background', '');
+            });
+        });
+        //单击表格变色
+        table.on('row(orders-list-table-parseData)', function (obj) {
+            let thisTr = obj.tr;
+            thisTr.css('background', '#FBEC88').siblings().css('background', '');
+        });
+
+
+    });
+
+    // 关闭弹框
+    function closeLayer() {
+        layer.closeAll();
+    }
+
+
+</script>
+
+<style>
+    .layui-col-md3,
+    #reset-btn,
+    #search-btn {
+        margin-top: 10px;
+    }
+
+    .card-add {
+        margin-top: 20px;
+    }
+
+    /* 弹框样式 */
+    .layui-btn-sm {
+        line-height: normal;
+        font-size: 12.5px;
+    }
+
+    .layui-table-view .layui-table-body {
+        min-height: 190px;
+    }
+
+    .layui-table-cell .layui-input.layui-unselect {
+        height: 30px;
+        line-height: 30px;
+    }
+
+    /*设置 layui 表格中单元格内容溢出可见样式*/
+    .table-overlay .layui-table-view,
+    .table-overlay .layui-table-box,
+    .table-overlay .layui-table-body {
+        overflow: visible;
+    }
+
+    .table-overlay .layui-table-cell {
+        height: auto;
+        overflow: visible;
+    }
+
+    /*文本对齐方式*/
+    .text-center {
+        text-align: center;
+    }
+
+    #toolbar {
+        margin-bottom: 10px;
+    }
+
+    .bgc-ebf2ff {
+        background-color: #f8f8f8;
+    }
+
+    .bgc-FBEC88 {
+        background-color: #FBEC88;
+    }
+
+    .bgc #layui-layer1 .layui-table tbody tr:hover,
+    #layui-layer1 .layui-table thead tr,
+    #layui-layer1 .layui-table-click,
+    #layui-layer1 .layui-table-header,
+    #layui-layer1 .layui-table-hover,
+    #layui-layer1 .layui-table-mend,
+    #layui-layer1 .layui-table-patch,
+    #layui-layer1 .layui-table-tool,
+    #layui-layer1 .layui-table[lay-even] tr:nth-child(even) {
+        background-color: transparent;
+    }
+</style>

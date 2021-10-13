@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.codingfuture.mapper.DeptMapper">
+    <resultMap id="getFindAllDept" type="com.codingfuture.entity.Dept">
+        <id property="uuid" column="uuid"/>
+    </resultMap>
+    <update id="updateDept">
+        UPDATE dep
+        SET name = #{name},
+            tele = #{tele}
+        WHERE
+            uuid = #{uuid}
+    </update>
+    <delete id="deleteDept">
+        delete FROM dep WHERE uuid = #{id}
+    </delete>
+    <select id="findAllDept" resultMap="getFindAllDept">
+        SELECT
+        d.uuid,
+        d.name,
+        d.tele
+        FROM
+        dep d
+        <where>
+            <if test="name!=null and name!=''">
+                and d.name = #{name}
+            </if>
+            <if test="tele!=null and tele!=''">
+                and d.tele = #{tele}
+            </if>
+        </where>
+        order by d.uuid
+    </select>
+    <resultMap id="getSelectOneUpdateDept" type="com.codingfuture.entity.Dept">
+        <id property="uuid" column="uuid"/>
+    </resultMap>
+    <select id="selectOneUpdateDept" resultMap="getSelectOneUpdateDept">
+        SELECT
+        d.uuid,
+        d.name,
+        d.tele
+        FROM
+        dep d
+        where
+        d.uuid = #{id}
+    </select>
+    <insert id="addDept">
+        INSERT INTO dep (name,tele) VALUES(#{name},#{tele})
+    </insert>
+    <select id="deleteDeptIsExistEmp" resultType="Integer">
+        SELECT
+            count( uuid )
+        FROM
+            dep
+        WHERE
+                uuid = #{id} IN (
+                SELECT
+                    uuid
+                FROM
+                    dep
+                WHERE
+                        uuid IN ( SELECT e.dep_uuid FROM dep d LEFT JOIN emp e ON d.uuid = e.dep_uuid ))
+    </select>
+</mapper>

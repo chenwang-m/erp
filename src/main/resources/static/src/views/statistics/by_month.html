@@ -1,0 +1,121 @@
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>统计分析</cite></a>
+        <a><cite>月销售统计</cite></a>
+    </div>
+</div>
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-header">月销售统计</div>
+        <div class="layui-card-body">
+            <div class="layui-row">
+                <div class="layui-col-md4">
+                    <form class="layui-form" lay-filter="year" >
+                        <div class="layui-form-item" style="margin-top: 10px;">
+                            <label class="layui-form-label">年份:</label>
+                            <div class="layui-input-block">
+                                <select name="year" id="year" lay-verify="" lay-filter="year">
+                                    <option value="">---请选择年份---</option>
+                                    <option value="2019">2019</option>
+                                    <option value="2020">2020</option>
+                                    <option value="2021">2021</option>
+                                    <option value="2021">2022</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="layui-row">
+                <div class="layui-col-md6">
+                    <div class="layui-card">
+                        <div class="layui-card-header"><b>销售趋势表</b></div>
+                        <div class="layui-card-body">
+                            <table id="by-month-table-parseData" lay-filter="by-month-table-parseData"></table>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-col-md6">
+                    <div class="layui-card">
+                        <div class="layui-card-header">
+                            <b>销售趋势图</b>
+                        </div>
+                        <div class="layui-card-body">
+                            <!-- 这里写Echarts -->
+                            <div class="Echarts_month" style="width: 600px; height: 300px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    layui.use(['table', 'admin', 'form', 'tree', 'echarts'], function () {
+        var admin = layui.admin
+            , table = layui.table
+            , form = layui.form
+            , baseUrl = layui.setter.baseUrl
+            , $ = layui.$
+            , tree = layui.tree
+            , echarts = layui.echarts;
+
+        form.render(null, 'year');
+        //echarts图表
+        var data = form.val("year");
+        var chartDom = $('.Echarts_month');
+        var myChart = echarts.init(chartDom[0]);
+        var option;
+        //第一个实例
+        form.on('select(year)',function (data){
+            table.render({
+                elem: '#by-month-table-parseData'
+                , url: 'getLine?year='+ data.value
+                // , cellMinWidth: 120
+                , loading: true
+                , method: 'get'
+                , cols: [[
+                    { field: 'month', title: '月份' }
+                    , { field: 'money', title: '销售额', templet: '<div>{{d.money ? d.money.toFixed(2) : "0.00"}}</div>' }
+                ]]
+                //
+                // , request: {
+                //     pageName: 'page',
+                //     limitName: 'rows'
+                // }
+                , response: {
+                    statusCode: 200 //重新规定成功的状态码为 200，table 组件默认为 0
+                }
+                , parseData: function (res) { //将原始数据解析成 table 组件所规定的数据
+                    console.log(res)
+                    option = {
+                        xAxis: {
+                            type: 'category',
+                            data: ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月']
+                        },
+                        yAxis: {
+                            type: 'value'
+                        },
+                        series: [{
+                            data: res.data.money,
+                            type: 'line',
+                            // smooth: true
+                        }]
+                    };
+                    option && myChart.setOption(option);
+                    return {
+                        "code": res.code, //解析接口状态
+                        "msg": res.msg, //解析提示文本
+                        "count": res.data.total, //解析数据长度
+                        "data": res.data.rows //解析数据列表
+                    };
+                }
+            });
+        });
+
+
+    });
+
+</script>

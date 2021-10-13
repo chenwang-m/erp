@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.codingfuture.mapper.OrdersQueryMapper">
+    <resultMap id="OrdersWithSuppliername" type="com.codingfuture.dto.OrdersWithSupplierNameDTO" autoMapping="true">
+        <id property="uuid" column="order_uuid"/>
+        <result property="startername" column="starter"/>
+        <result property="creatername" column="creater"/>
+        <result property="checkername" column="checker"/>
+        <result property="endername" column="ender"/>
+        <result property="suppliername" column="name"/>
+        <result property="state" column="order_state"/>
+        <collection property="orderDetailList" ofType="com.codingfuture.dto.OrderDetailDTO"
+                    autoMapping="true">
+            <id property="orderDetailUuid" column="order_detail_uuid"/>
+            <result property="state" column="order_detail_state"/>
+        </collection>
+    </resultMap>
+    <insert id="add" parameterType="com.codingfuture.dto.OrderDetailDTO" useGeneratedKeys="true"
+            keyProperty="ordersuuid" keyColumn="uuid">
+        insert into orders (createtime,creater,ender,type, supplieruuid,state, totalmoney)
+        values (now(),#{creater},#{ender},#{type}, #{customeruuid}, '0', #{totalmoney})
+    </insert>
+
+    <select id="ordersQuery" resultMap="OrdersWithSuppliername">
+        SELECT o.uuid order_uuid,
+        o.createtime,
+        o.checktime,
+        o.starttime,
+        o.endtime,
+        o.type,
+        o.creater,
+        o.checker,
+        o.starter,
+        o.ender,
+        o.totalmoney,
+        o.state order_state,
+        o.waybillsn,
+        s.`name`,
+        od.uuid order_detail_uuid,
+        od.goodsname,
+        od.goodsuuid,
+        od.price,
+        od.num,
+        od.money,
+        od.state order_detail_state
+        FROM orders o
+        LEFT JOIN orderdetail od ON o.uuid = od.ordersuuid
+        LEFT JOIN supplier s ON o.supplieruuid = s.uuid
+        <where>
+            <if test="stateCode!=null and stateCode!=''">
+                o.state=#{stateCode}
+            </if>
+        </where>
+    </select>
+
+</mapper>

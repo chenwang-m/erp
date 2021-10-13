@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.codingfuture.mapper.EmpMapper">
+    <resultMap id="getFindAllEmp" type="com.codingfuture.dto.EmpDTO" autoMapping="true">
+        <id property="uuid" column="uuid"/>
+    </resultMap>
+    <insert id="addEmp">
+        INSERT INTO emp (user_name, pwd, name, gender, email, tele, address, birthday, dep_uuid)
+        VALUES (#{userName},
+                #{pwd},
+                #{name},
+                #{gender},
+                #{email},
+                #{tele},
+                #{address},
+                #{birthday},
+                #{depUuid})
+    </insert>
+    <update id="updateEmp">
+        UPDATE emp
+        SET user_name = #{userName},
+            name=#{name},
+            gender=#{gender},
+            email=#{email},
+            tele=#{tele},
+            address   =#{address},
+            birthday=#{birthday},
+            dep_uuid=#{depUuid}
+        WHERE uuid = #{uuid}
+    </update>
+    <update id="changePwd">
+        UPDATE emp
+        SET pwd = #{newPwd}
+        WHERE user_name = #{username}
+    </update>
+    <select id="findAllEmp" resultMap="getFindAllEmp">
+        SELECT
+        e.uuid,
+        e.user_name username,
+        e.pwd,
+        e.`name`,
+        e.gender,
+        e.email,
+        e.tele,
+        e.address,
+        e.birthday,
+        e.dep_uuid,
+        d.name dep
+        FROM
+        emp e
+        LEFT JOIN dep d ON e.dep_uuid = d.uuid
+        <where>
+            <if test="userName!=null and userName!=''">
+                and e.user_name like "%"#{userName}"%"
+            </if>
+            <if test="name!=null and name!=''">
+                and e.name like "%"#{name}"%"
+            </if>
+            <if test="gender!=null">
+                and e.gender = #{gender}
+            </if>
+            <if test="email!=null and email!=''">
+                and e.email like "%"#{email}"%"
+            </if>
+            <if test="tele!=null and tele!=''">
+                and e.tele like "%"#{tele}"%"
+            </if>
+            <if test="address!=null and address!=''">
+                and e.address like "%"#{address}"%"
+            </if>
+            <if test="bebirthday!=null">
+                <![CDATA[ and e.birthday >= #{bebirthday} ]]>
+            </if>
+            <if test="afbirthday!=null">
+                <![CDATA[ and e.birthday <= #{afbirthday} ]]>
+            </if>
+            <if test="depUuid!=null and depUuid!=''">
+                e.dep_uuid = #{depUuid}
+            </if>
+        </where>
+        order by e.uuid
+    </select>
+
+    <resultMap id="getfindOneEmp" type="com.codingfuture.dto.EmpDTO" autoMapping="true">
+        <id property="uuid" column="uuid"/>
+    </resultMap>
+    <select id="findOneEmp" resultMap="getfindOneEmp">
+        SELECT e.uuid,
+               e.user_name username,
+               e.pwd,
+               e.`name`,
+               e.gender,
+               e.email,
+               e.tele,
+               e.address,
+               e.birthday,
+               e.dep_uuid,
+               d.name      dep
+        FROM emp e
+                 LEFT JOIN dep d ON e.dep_uuid = d.uuid
+        WHERE e.uuid = #{id}
+    </select>
+    <select id="findEmpUserName" resultType="java.lang.String">
+        SELECT user_name
+        FROM emp
+        WHERE uuid != #{id}
+    </select>
+
+    <select id="selectNameByUsername" resultType="com.codingfuture.dto.EmpSessionDTO">
+        SELECT uuid emp_uuid,
+               user_name,
+               name,
+               pwd
+        FROM emp
+        WHERE user_name = #{username}
+    </select>
+
+    <delete id="deleteEmp">
+        DELETE
+        FROM emp
+        WHERE uuid = #{id}
+    </delete>
+</mapper>

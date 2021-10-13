@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>码上未来erp管理系统</title>
+    <meta name="renderer" content="webkit">
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <link rel="stylesheet" href="src/style/login.css">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="start/layui/css/layui.css" media="all">
+    <style>
+        html,
+        body {
+            height: 100%;
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="layadmin-user-login layadmin-user-display-show" id="LAY-user-login" style="display: none;">
+
+        <div class="layadmin-user-login-main">
+            <div class="layadmin-user-login-box layadmin-user-login-header">
+                <h2>码上未来erp项目</h2>
+                <p>登录</p>
+            </div>
+            <div class="layadmin-user-login-box layadmin-user-login-body layui-form">
+                <div class="layui-form-item">
+                    <label class="layadmin-user-login-icon layui-icon layui-icon-username"
+                        for="LAY-user-login-username"></label>
+                    <input type="text" name="username" id="LAY-user-login-username" placeholder="用户名"
+                        class="layui-input" autocomplete="off">
+                </div>
+                <div class="layui-form-item">
+                    <label class="layadmin-user-login-icon layui-icon layui-icon-password"
+                        for="LAY-user-login-password"></label>
+                    <input type="password" name="pwd" id="LAY-user-login-password" placeholder="密码" class="layui-input"
+                        autocomplete="off">
+                </div>
+
+                <div class="layui-form-item" style="margin-top: 80px;">
+                    <button class="layui-btn layui-btn-fluid" lay-submit lay-filter="LAY-user-login-submit">登 陆</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="layui-trans layadmin-user-login-footer">
+            <p>© All Rights Reserved</p>
+        </div>
+
+    </div>
+    <script src="start/layui/layui.js"></script>
+    <script>
+        layui.use(['form'], function () {
+            var $ = layui.$
+                , form = layui.form
+            form.render();
+            //提交
+            form.on('submit(LAY-user-login-submit)', function (obj) {
+                //请求登入接口
+                $.ajax({
+                    url: '/v2/login'
+                    , type: 'post'
+                    , data: obj.field
+                    , success: function (res) {
+                        //登入成功的提示与跳转
+                        if (res.code == 200) {
+                            layer.msg('登入成功', {
+                                offset: '15px'
+                                , icon: 1
+                                , time: 100
+                            }, function () {
+                                location.href = '/index.html#'
+                            });
+                        } else {
+                            layer.msg('登录失败', {
+                                offset: '15px'
+                                , icon: 5
+                                , time: 10000
+                            })
+                        }
+                    }
+                });
+
+            });
+
+        });
+    </script>
+</body>
+
+</html>
